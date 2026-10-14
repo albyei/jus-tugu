@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import InfoStrip from '../components/InfoStrip.astro';
+import BestSeller from '../components/BestSeller.astro';
+import MenuSection from '../components/MenuSection.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Location from '../components/Location.astro';
+import FeedbackForm from '../components/FeedbackForm.astro';
+import Footer from '../components/Footer.astro';
+import OrderBar from '../components/OrderBar.astro';
+import OrderSheet from '../components/OrderSheet.astro';
+import QtyStepperTemplate from '../components/QtyStepperTemplate.astro';
+
+const title = 'Jus Tugu Senggreng – Jus Buah, Sop Buah & Salad Buah di Sumberpucung, Malang';
+const description =
+  'Jus buah segar, sop buah, dan salad buah di Desa Senggreng, Sumberpucung, Kabupaten Malang. Lebih dari 40 pilihan menu mulai Rp6.000. Pesan langsung lewat WhatsApp.';
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main>
+    <Hero />
+    <InfoStrip />
+    <BestSeller />
+    <MenuSection />
+    <Testimonials />
+    <Location />
+    <FeedbackForm />
+  </main>
+  <Footer />
+  <OrderBar />
+  <OrderSheet />
+  <QtyStepperTemplate />
+</BaseLayout>
+
+<script>
+  import '../scripts/cart';
+</script>

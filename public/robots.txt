@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: [SITE_URL] — ganti domain di bawah setelah situs online
+Sitemap: https://example.com/sitemap-index.xml

@@ -1,0 +1,72 @@
+---
+/**
+ * Tombol tambah yang berubah menjadi kontrol jumlah "− qty +".
+ * variant "row": tombol + bulat (baris menu). variant "card": tombol "+ Tambah" kuning (kartu produk).
+ * Stepper dibuat oleh scripts/cart.ts dari <template id="qty-stepper-template"> (lihat QtyStepperTemplate.astro).
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  slug: string;
+  name: string;
+  variant?: 'row' | 'card';
+}
+
+const { slug, name, variant = 'row' } = Astro.props;
+---
+
+<div class:list={['qty', `qty--${variant}`]} data-qty-control data-slug={slug} data-name={name}>
+  {
+    variant === 'card' ? (
+      <button type="button" class="qty__add qty__add--card" data-action="add" aria-label={`Tambah ${name}`}>
+        + Tambah
+      </button>
+    ) : (
+      <button type="button" class="qty__add qty__add--row" data-action="add" aria-label={`Tambah ${name}`}>
+        <Icon name="plus" weight="bold" size="var(--icon-lg)" />
+      </button>
+    )
+  }
+</div>
+
+<style>
+  .qty {
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .qty--card {
+    width: 100%;
+  }
+
+  .qty__add--row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    border-radius: var(--radius-full);
+    border: var(--border-width-strong) solid var(--color-accent);
+    background: var(--color-surface);
+    color: var(--color-accent);
+  }
+
+  .qty__add--card {
+    width: 100%;
+    min-height: var(--size-touch);
+    padding: 0 var(--space-btn-x);
+    border-radius: var(--radius-lg);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: var(--text-body);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-body);
+  }
+
+  @media (hover: hover) {
+    .qty__add--row:hover {
+      background: var(--color-accent-tint);
+    }
+  }
+</style>

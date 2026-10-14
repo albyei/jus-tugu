@@ -1,0 +1,98 @@
+---
+import { categories, totalItems, minPrice } from '../data/menu';
+import { formatRupiah } from '../lib/format';
+
+// Harga yang paling sering muncul di Jus Original
+const originalPrices = categories.find((c) => c.id === 'jus-original')?.items.map((item) => item.price) ?? [];
+const commonPrice = originalPrices.reduce(
+  (best, price, _, all) => (all.filter((p) => p === price).length > all.filter((p) => p === best).length ? price : best),
+  originalPrices[0] ?? minPrice,
+);
+
+const facts = [
+  {
+    title: `${totalItems} pilihan menu`,
+    text: 'Jus original, jus campur, jus Yakult, sop buah, sampai cappuccino.',
+  },
+  {
+    title: `Mulai ${formatRupiah(minPrice)}`,
+    text: `Sebagian besar jus original ${formatRupiah(commonPrice)}.`,
+  },
+  {
+    title: 'Pesan lewat WhatsApp',
+    text: 'Pilih menu, kirim pesanan, langsung kami proses.',
+  },
+];
+---
+
+<div class="info container">
+  <ul class="info__list">
+    {
+      facts.map((fact) => (
+        <li class="info__fact">
+          <p class="info__title">{fact.title}</p>
+          <p class="info__text">{fact.text}</p>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .info {
+    background: var(--color-bg);
+  }
+
+  .info__list {
+    border-top: var(--border-width) solid var(--color-border);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .info__fact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-0-5);
+    padding: var(--space-4) 0;
+  }
+
+  .info__fact + .info__fact {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .info__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--weight-extrabold);
+    line-height: var(--leading-h3);
+  }
+
+  .info__text {
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 768px) {
+    .info__list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: var(--space-7) 0;
+    }
+
+    .info__fact {
+      gap: var(--space-1-5);
+      padding: 0 var(--space-8);
+    }
+
+    .info__fact:first-child {
+      padding-left: 0;
+    }
+
+    .info__fact:last-child {
+      padding-right: 0;
+    }
+
+    .info__fact + .info__fact {
+      border-top: 0;
+      border-left: var(--border-width) solid var(--color-border);
+    }
+  }
+</style>

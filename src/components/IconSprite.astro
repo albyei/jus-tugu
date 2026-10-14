@@ -1,0 +1,8 @@
+---
+/** Harus dirender setelah semua <Icon> (di akhir <body>). */
+import { takeSymbols } from '../lib/icons';
+
+const symbols = takeSymbols();
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position:absolute" set:html={symbols} />

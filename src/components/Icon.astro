@@ -1,0 +1,25 @@
+---
+/**
+ * Ikon Phosphor (lewat sprite SVG, tanpa JavaScript).
+ * name: nama ikon Phosphor, mis. "map-pin"; weight: regular | bold | fill.
+ */
+import { useIcon, type IconWeight } from '../lib/icons';
+
+interface Props {
+  name: string;
+  weight?: IconWeight;
+  size?: string;
+  class?: string;
+}
+
+const { name, weight = 'regular', size, class: className } = Astro.props;
+const id = useIcon(name, weight);
+---
+
+<svg
+  class:list={['icon', className]}
+  style={size ? `--icon-size:${size}` : undefined}
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"><use href={`#${id}`}></use></svg
+>

@@ -1,0 +1,223 @@
+---
+import { Picture } from 'astro:assets';
+import heroImage from '../assets/images/hero.png';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+import { minPrice } from '../data/menu';
+import { formatRupiah } from '../lib/format';
+import { greetingLink } from '../scripts/whatsapp';
+
+const { locality, district, regency } = site.address;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__inner container">
+    <div class="hero__content">
+      <div class="hero__text">
+        <p class="hero__location">
+          <Icon name="map-pin" size="var(--icon-sm)" />
+          <span>{locality}, {district} · {regency}</span>
+        </p>
+        <h1 id="hero-title" class="hero__title">Jus Buah, Sop Buah, dan Salad Buah di {locality}, {district}</h1>
+        <p class="hero__subtitle">
+          Lebih dari 40 pilihan jus dan olahan buah, mulai {formatRupiah(minPrice)}. Pesan lewat WhatsApp, kami siapkan
+          pesanan Anda.
+        </p>
+      </div>
+      <div class="hero__buttons">
+        <Button href="#menu" size="lg" class="hero__btn hero__btn--primary">Lihat Menu</Button>
+        <Button href={greetingLink} external variant="outline" size="lg" icon="whatsapp-logo" class="hero__btn"
+          >Chat WhatsApp</Button
+        >
+      </div>
+      <ul class="hero__info">
+        <li>
+          <Icon name="clock" />
+          <span>Buka {site.openingHoursSummary}</span>
+        </li>
+        <li class="hero__dot" aria-hidden="true"></li>
+        <li>
+          <Icon name="map-pin" />
+          <span>{site.landmark}</span>
+        </li>
+      </ul>
+    </div>
+    <Picture
+      src={heroImage}
+      formats={['avif', 'webp']}
+      widths={[400, 720, 1120]}
+      sizes="(min-width: 1024px) 560px, calc(100vw - 32px)"
+      alt="Tiga gelas jus buah segar Jus Tugu di meja warung: sop buah, jus alpukat, dan jus mangga"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class="hero__photo"
+      pictureAttributes={{ class: 'hero__picture' }}
+    />
+  </div>
+</section>
+
+<style>
+  .hero {
+    background: var(--color-bg);
+  }
+
+  .hero__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-8);
+  }
+
+  .hero__picture {
+    order: -1;
+  }
+
+  .hero__photo {
+    width: 100%;
+    height: var(--hero-photo-height-mobile);
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .hero__location {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-label);
+    font-size: var(--text-label-location);
+    font-weight: var(--weight-semibold);
+    line-height: 1.25;
+    color: var(--color-text);
+  }
+
+  .hero__location :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  .hero__title {
+    font-size: var(--text-display);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .hero__subtitle {
+    font-size: var(--text-body-lg);
+    color: var(--color-text-muted);
+  }
+
+  .hero__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2-5);
+  }
+
+  .hero__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1-5);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-medium);
+    line-height: 1.25;
+  }
+
+  .hero__info li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .hero__dot {
+    display: none !important;
+  }
+
+  @media (min-width: 768px) {
+    .hero__buttons {
+      flex-direction: row;
+      gap: var(--space-3);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero__inner {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-16);
+      padding-top: var(--space-14);
+      padding-bottom: var(--space-16);
+    }
+
+    .hero__picture {
+      order: 0;
+      flex: none;
+      width: min(var(--hero-photo-width), 45%);
+    }
+
+    .hero__photo {
+      height: var(--hero-photo-height);
+    }
+
+    .hero__content {
+      flex: 1 1 0;
+      min-width: 0;
+      gap: var(--space-7);
+    }
+
+    .hero__text {
+      gap: var(--space-4);
+    }
+
+    .hero__location {
+      gap: var(--space-2);
+    }
+
+    .hero__title {
+      line-height: var(--leading-tight);
+    }
+
+    .hero__subtitle {
+      max-width: var(--subtitle-width-lg);
+    }
+
+    .hero__buttons :global(.hero__btn) {
+      min-height: var(--size-button-xl);
+      padding-inline: var(--space-7);
+    }
+
+    .hero__buttons :global(.hero__btn--primary) {
+      padding-inline: var(--space-8);
+    }
+
+    .hero__info {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .hero__dot {
+      display: block !important;
+      width: var(--size-dot);
+      height: var(--size-dot);
+      border-radius: var(--radius-full);
+      background: var(--color-icon-muted);
+    }
+  }
+</style>

@@ -1,0 +1,292 @@
+---
+import { categories, allItems } from '../data/menu';
+import CategoryTabs from './CategoryTabs.astro';
+import Icon from './Icon.astro';
+import MenuItem from './MenuItem.astro';
+import OrderSummary from './OrderSummary.astro';
+
+// Data ringan untuk keranjang di browser (nama & harga dari menu.ts)
+const cartData = Object.fromEntries(allItems.map((item) => [item.slug, { name: item.orderName, price: item.price }]));
+---
+
+<section id="menu" class="menu" aria-labelledby="menu-title">
+  <div class="menu__head container">
+    <div class="menu__intro">
+      <h2 id="menu-title" class="section-title">Menu Jus Tugu</h2>
+      <p class="menu__lead">Tekan + Tambah pada menu yang Anda pilih, lalu kirim pesanan lewat WhatsApp.</p>
+    </div>
+    <div class="search" role="search">
+      <label for="menu-search" class="visually-hidden">Cari menu</label>
+      <span class="search__icon"><Icon name="magnifying-glass" size="var(--icon-lg)" /></span>
+      <input
+        id="menu-search"
+        class="search__input"
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        enterkeyhint="search"
+        placeholder="Cari menu, misalnya alpukat"
+        aria-controls="menu-list"
+        data-menu-search
+      />
+      <button type="button" class="search__clear" aria-label="Hapus pencarian" hidden data-menu-search-clear>
+        <Icon name="x" size="var(--icon-md)" />
+      </button>
+    </div>
+  </div>
+
+  <CategoryTabs categories={categories} />
+
+  <div class="menu__body container">
+    <div id="menu-list" class="menu__list">
+      {
+        categories.map((category) => (
+          <section id={category.id} class="category" aria-labelledby={`${category.id}-title`} data-category>
+            <h2 id={`${category.id}-title`} class="ribbon">
+              <span>{category.name}</span>
+              <span class="ribbon__count">{category.items.length} menu</span>
+            </h2>
+            <ul class="category__items" style={`--rows: ${Math.ceil(category.items.length / 2)}`}>
+              {category.items.map((item, index) => (
+                <MenuItem item={item} columnEnd={index === Math.ceil(category.items.length / 2) - 1} />
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+      <p class="menu__empty" role="status" data-menu-empty hidden>Menu tidak ditemukan</p>
+    </div>
+    <aside class="menu__panel" aria-labelledby="order-panel-title">
+      <OrderSummary variant="panel" />
+    </aside>
+  </div>
+  <script type="application/json" id="cart-data" set:html={JSON.stringify(cartData)} />
+</section>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('[data-menu-search]');
+  const clear = document.querySelector<HTMLButtonElement>('[data-menu-search-clear]');
+  const empty = document.querySelector<HTMLElement>('[data-menu-empty]');
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-category]'));
+
+  // Tanpa huruf besar, spasi, dan tanda "+"
+  const normalize = (text: string) => text.toLowerCase().replace(/[\s+]/g, '');
+
+  const filter = () => {
+    if (!input) return;
+    const query = normalize(input.value);
+    let total = 0;
+    sections.forEach((section) => {
+      let shown = 0;
+      section.querySelectorAll<HTMLElement>('[data-menu-item]').forEach((item) => {
+        const match = !query || normalize(item.dataset.search ?? '').includes(query);
+        item.hidden = !match;
+        if (match) shown += 1;
+      });
+      section.hidden = shown === 0;
+      total += shown;
+    });
+    if (empty) empty.hidden = total > 0;
+    if (clear) clear.hidden = input.value.length === 0;
+  };
+
+  input?.addEventListener('input', filter);
+  clear?.addEventListener('click', () => {
+    if (!input) return;
+    input.value = '';
+    filter();
+    input.focus();
+  });
+  if (input?.value) filter();
+</script>
+
+<style>
+  .menu {
+    padding: var(--space-8) 0;
+    background: var(--color-bg);
+  }
+
+  .menu__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+  }
+
+  .menu__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .menu__lead {
+    color: var(--color-text-muted);
+  }
+
+  .search {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search__icon {
+    position: absolute;
+    left: var(--space-3-5);
+    display: inline-flex;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  .search__input {
+    width: 100%;
+    height: var(--size-input);
+    padding: 0 var(--size-touch) 0 calc(var(--space-3-5) + var(--icon-lg) + var(--space-2-5));
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    appearance: none;
+  }
+
+  .search__input::placeholder {
+    color: var(--color-text-placeholder);
+  }
+
+  .search__input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search__input:focus-visible {
+    outline: var(--border-width-focus) solid var(--color-ink);
+    outline-offset: -1px;
+  }
+
+  .search__clear {
+    position: absolute;
+    right: var(--space-0-5);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    color: var(--color-text-muted);
+  }
+
+  .menu__body {
+    padding-top: var(--space-4);
+  }
+
+  .menu__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  .category {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    scroll-margin-top: calc(var(--chips-height) + var(--space-3));
+  }
+
+  .ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: var(--size-ribbon);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-ink);
+    border-radius: var(--radius-md);
+    font-size: var(--text-ribbon);
+    letter-spacing: var(--tracking-ribbon);
+    line-height: var(--leading-h3);
+    color: var(--color-on-ink);
+  }
+
+  .ribbon__count {
+    flex: none;
+    font-family: var(--font-body);
+    font-size: var(--text-label-location);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0;
+    color: var(--color-on-ink-muted);
+  }
+
+  .category__items > :global(li:last-child) {
+    border-bottom: 0;
+  }
+
+  .menu__empty {
+    color: var(--color-text-muted);
+  }
+
+  .menu__panel {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .menu {
+      padding: var(--space-14) 0 var(--space-18);
+    }
+
+    .menu__head {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-10);
+      padding-bottom: var(--space-5);
+    }
+
+    .menu__lead {
+      font-size: var(--text-body-lg-fixed);
+    }
+
+    .search {
+      flex: none;
+      width: var(--search-width-lg);
+    }
+
+    .menu__body {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-10);
+      padding-top: var(--space-7);
+    }
+
+    .menu__list {
+      flex: 1 1 0;
+      min-width: 0;
+      gap: var(--space-9);
+    }
+
+    .menu__panel {
+      display: block;
+      flex: none;
+      position: sticky;
+      top: calc(var(--header-height) + var(--chips-height) + var(--space-5));
+      width: var(--order-panel-width);
+      max-height: calc(100vh - var(--header-height) - var(--chips-height) - var(--space-10));
+      overflow-y: auto;
+      padding: var(--space-5) var(--space-5) var(--space-6);
+      background: var(--color-surface);
+      border: var(--border-width) solid var(--color-border);
+      border-radius: var(--radius-xl);
+    }
+  }
+
+  /* Dua kolom menu bila cukup lebar (desain 1440px), diisi per kolom */
+  @media (min-width: 1280px) {
+    .category__items {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(var(--rows), auto);
+      grid-auto-flow: column;
+      align-content: start;
+      column-gap: var(--space-8);
+    }
+
+    .category__items > :global([data-column-end]) {
+      border-bottom: 0;
+    }
+  }
+</style>

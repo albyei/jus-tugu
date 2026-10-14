@@ -1,0 +1,157 @@
+---
+import Icon from './Icon.astro';
+import { site, shortAddress } from '../data/site';
+import { greetingLink } from '../scripts/whatsapp';
+
+const socials = [
+  { href: site.social.instagram, icon: 'instagram-logo', label: 'Instagram Jus Tugu' },
+  { href: site.social.facebook, icon: 'facebook-logo', label: 'Facebook Jus Tugu' },
+  { href: site.social.gofood, icon: 'fork-knife', label: 'Jus Tugu di GoFood' },
+];
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer__inner container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <p class="footer__name">{site.name}</p>
+        <p class="footer__tagline">
+          Jus buah, sop buah, dan salad buah di {site.address.locality}, {site.address.district}.
+        </p>
+      </div>
+      <ul class="footer__contact">
+        <li>
+          <span class="footer__icon"><Icon name="map-pin" size="var(--icon-lg)" /></span>
+          <span>{shortAddress}</span>
+        </li>
+        <li>
+          <span class="footer__icon footer__icon--wa"><Icon name="whatsapp-logo" size="var(--icon-lg)" /></span>
+          <a href={greetingLink} target="_blank" rel="noopener">{site.waNumber}</a>
+        </li>
+      </ul>
+      <ul class="footer__social">
+        {
+          socials.map((social) => (
+            <li>
+              <a href={social.href} target="_blank" rel="noopener" class="footer__social-link" aria-label={social.label}>
+                <Icon name={social.icon} size="var(--icon-lg)" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <p class="footer__copy">© {year} {site.name}, {site.address.locality}, {site.address.district}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-bg-subtle);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-top: var(--space-9);
+    padding-bottom: var(--space-6);
+  }
+
+  .footer__top {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-bottom: var(--space-5);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .footer__name {
+    font-family: var(--font-heading);
+    font-size: var(--text-brand);
+    font-weight: var(--weight-extrabold);
+    line-height: var(--leading-h3);
+  }
+
+  .footer__tagline {
+    color: var(--color-text-muted);
+  }
+
+  .footer__contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer__contact li {
+    display: flex;
+    gap: var(--space-2-5);
+  }
+
+  .footer__contact a {
+    text-decoration: none;
+  }
+
+  .footer__icon {
+    display: inline-flex;
+    padding-top: 1px;
+    color: var(--color-text-muted);
+  }
+
+  .footer__icon--wa {
+    color: var(--color-whatsapp);
+  }
+
+  .footer__social {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .footer__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    border: var(--border-width) solid var(--color-border-input);
+    border-radius: var(--radius-full);
+    color: var(--color-text);
+  }
+
+  .footer__copy {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .footer__inner {
+      gap: var(--space-8);
+      padding-top: var(--space-14);
+      padding-bottom: var(--space-8);
+    }
+
+    .footer__top {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-16);
+      padding-bottom: var(--space-10);
+    }
+
+    .footer__brand {
+      flex: 1 1 0;
+    }
+
+    .footer__contact {
+      flex: none;
+      width: var(--footer-contact-width);
+    }
+  }
+</style>

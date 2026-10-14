@@ -1,0 +1,56 @@
+---
+/** Satu template stepper "− qty +" yang dikloning scripts/cart.ts untuk setiap QtyControl. */
+import Icon from './Icon.astro';
+---
+
+<template id="qty-stepper-template">
+  <div class="qty__stepper" role="group">
+    <button type="button" class="qty__step" data-action="dec">
+      <Icon name="minus" size="var(--icon-md)" />
+    </button>
+    <span class="qty__count" data-qty-count>0</span>
+    <button type="button" class="qty__step" data-action="inc">
+      <Icon name="plus" size="var(--icon-md)" />
+    </button>
+  </div>
+</template>
+
+<style is:global>
+  .qty__stepper {
+    display: flex;
+    align-items: center;
+    height: var(--size-touch);
+    padding: 0 var(--space-0-5);
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .qty--card .qty__stepper {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .qty__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-step);
+    height: var(--size-touch);
+    border-radius: var(--radius-full);
+    color: inherit;
+  }
+
+  .qty__step:focus-visible {
+    outline-color: var(--color-on-accent);
+    outline-offset: -4px;
+  }
+
+  .qty__count {
+    min-width: var(--size-step-count);
+    text-align: center;
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

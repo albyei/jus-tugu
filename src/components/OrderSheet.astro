@@ -1,0 +1,41 @@
+---
+/** Bottom sheet "Pesanan Anda" (mobile) memakai <dialog> bawaan browser. */
+import OrderSummary from './OrderSummary.astro';
+---
+
+<dialog class="sheet" aria-labelledby="order-sheet-title" data-order-sheet>
+  <div class="sheet__inner">
+    <OrderSummary variant="sheet" />
+  </div>
+</dialog>
+
+<style>
+  .sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: var(--sheet-max-width);
+    max-height: 90dvh;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-float);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sheet::backdrop {
+    background: var(--color-overlay);
+  }
+
+  .sheet__inner {
+    padding: var(--space-2) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
+  }
+
+  :global(html:has(.sheet[open])) {
+    overflow: hidden;
+  }
+</style>

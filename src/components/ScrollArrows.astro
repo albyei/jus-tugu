@@ -1,0 +1,78 @@
+---
+/** Tombol geser kiri/kanan untuk daftar scroll-snap (hanya desktop). */
+import Icon from './Icon.astro';
+
+interface Props {
+  target: string;
+  label: string;
+}
+
+const { target, label } = Astro.props;
+---
+
+<div class="arrows" data-scroll-arrows={target}>
+  <button type="button" class="arrows__btn" data-dir="-1" aria-controls={target} aria-label={`Geser ${label} ke kiri`}>
+    <Icon name="arrow-left" />
+  </button>
+  <button type="button" class="arrows__btn" data-dir="1" aria-controls={target} aria-label={`Geser ${label} ke kanan`}>
+    <Icon name="arrow-right" />
+  </button>
+</div>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-scroll-arrows]').forEach((group) => {
+    const track = document.getElementById(group.dataset.scrollArrows ?? '');
+    if (!track) return;
+    const [prev, next] = group.querySelectorAll<HTMLButtonElement>('button');
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth - 1;
+      prev.disabled = track.scrollLeft <= 0;
+      next.disabled = track.scrollLeft >= max;
+    };
+
+    group.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-dir]');
+      if (!button) return;
+      const item = track.firstElementChild as HTMLElement | null;
+      const step = item ? item.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || '0') : track.clientWidth;
+      track.scrollBy({ left: Number(button.dataset.dir) * step, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    });
+
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+</script>
+
+<style>
+  .arrows {
+    display: none;
+    gap: var(--space-2);
+  }
+
+  .arrows__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text);
+  }
+
+  .arrows__btn:disabled {
+    color: var(--color-icon-muted);
+    cursor: default;
+  }
+
+  @media (min-width: 1024px) {
+    .arrows {
+      display: flex;
+    }
+  }
+</style>

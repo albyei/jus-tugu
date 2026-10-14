@@ -1,0 +1,186 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const links = [
+  { href: '#menu', label: 'Menu' },
+  { href: '#lokasi', label: 'Lokasi' },
+  { href: '#saran', label: 'Saran' },
+];
+---
+
+<header class="header">
+  <div class="header__inner container">
+    <a href="/" class="logo" aria-label={`${site.name}, halaman utama`}>
+      <span class="logo__mark">{site.name}</span>
+    </a>
+    <button
+      type="button"
+      class="header__toggle"
+      aria-label="Buka menu navigasi"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-nav-toggle
+    >
+      <Icon name="list" size="var(--icon-menu)" />
+    </button>
+    <nav id="site-nav" class="nav" aria-label="Navigasi utama" data-nav>
+      <ul class="nav__list">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} class="nav__link">
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+
+  if (toggle && nav) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Tutup menu navigasi' : 'Buka menu navigasi');
+      nav.classList.toggle('is-open', open);
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    nav.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.classList.contains('is-open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener('click', (event) => {
+      const target = event.target as Node;
+      if (nav.classList.contains('is-open') && !nav.contains(target) && !toggle.contains(target)) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--color-bg);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .header__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    padding-right: var(--space-2);
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--size-touch);
+    text-decoration: none;
+  }
+
+  .logo__mark {
+    padding: var(--space-badge-y) var(--space-2);
+    background: var(--color-primary);
+    border-radius: var(--radius-sm) var(--radius-xs) var(--radius-sm) var(--radius-xs);
+    font-family: var(--font-heading);
+    font-size: var(--text-logo);
+    font-weight: var(--weight-extrabold);
+    letter-spacing: var(--tracking-logo);
+    line-height: var(--leading-h3);
+    color: var(--color-on-primary);
+  }
+
+  .header__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    color: var(--color-text);
+  }
+
+  /* Mobile: dropdown di bawah header */
+  .nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .nav.is-open {
+    display: block;
+  }
+
+  .nav__list {
+    padding: 0 var(--page-gutter);
+  }
+
+  .nav__list li + li {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .nav__link {
+    display: flex;
+    align-items: center;
+    min-height: var(--size-touch);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+  }
+
+  @media (min-width: 1024px) {
+    .header__inner {
+      padding-right: var(--page-gutter);
+    }
+
+    .header__toggle {
+      display: none;
+    }
+
+    .nav,
+    .nav.is-open {
+      display: block;
+      position: static;
+      border: 0;
+      background: none;
+    }
+
+    .nav__list {
+      display: flex;
+      gap: var(--space-2);
+      padding: 0;
+    }
+
+    .nav__list li + li {
+      border: 0;
+    }
+
+    .nav__link {
+      padding: 0 var(--space-4);
+    }
+  }
+
+  @media (hover: hover) {
+    .nav__link:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+</style>

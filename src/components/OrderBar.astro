@@ -1,0 +1,83 @@
+---
+/** Bar pesanan yang menempel di bawah layar (mobile & tablet). */
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { greetingLink } from '../scripts/whatsapp';
+---
+
+<div class="bar" data-order-bar>
+  <div class="bar__state" data-bar-empty>
+    <Button href={greetingLink} external variant="outline" block icon="whatsapp-logo">Chat WhatsApp</Button>
+  </div>
+  <div class="bar__state" data-bar-filled hidden>
+    <button type="button" class="bar__summary" aria-haspopup="dialog" data-sheet-open>
+      <span class="bar__count" data-bar-text>0 item · Rp0</span>
+      <span class="bar__view">Lihat pesanan <Icon name="caret-up" weight="bold" size="var(--icon-xs)" /></span>
+    </button>
+    <Button href={greetingLink} external size="lg" icon="whatsapp-logo" class="bar__send" data-wa-order>Kirim Pesanan</Button>
+  </div>
+</div>
+
+<style>
+  .bar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 25;
+    min-height: calc(var(--order-bar-height) + env(safe-area-inset-bottom));
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    background: var(--color-surface);
+    border-top: var(--border-width) solid var(--color-border);
+    box-shadow: var(--shadow-float);
+  }
+
+  .bar__state {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .bar__state[hidden] {
+    display: none;
+  }
+
+  .bar__summary {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: var(--size-button-xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--space-0-5);
+    text-align: left;
+    line-height: 1.25;
+  }
+
+  .bar__count {
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bar__view {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-semibold);
+    color: var(--color-accent);
+  }
+
+  .bar__state :global(.bar__send) {
+    flex: none;
+  }
+
+  @media (min-width: 1024px) {
+    .bar {
+      display: none;
+    }
+  }
+</style>

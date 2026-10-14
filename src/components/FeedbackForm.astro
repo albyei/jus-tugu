@@ -1,0 +1,391 @@
+---
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+import { greetingLink } from '../scripts/whatsapp';
+
+const MAX_MESSAGE = 1000;
+---
+
+<section id="saran" class="fb" aria-labelledby="fb-title">
+  <div class="fb__inner container">
+    <div class="fb__intro">
+      <h2 id="fb-title" class="section-title">Kritik dan Saran</h2>
+      <p class="fb__lead">
+        Ada yang kurang dari rasa, pelayanan, atau menu kami? Tulis di sini. Setiap masukan kami baca.
+      </p>
+      <div class="fb__quick">
+        <p class="fb__quick-label">Perlu jawaban cepat?</p>
+        <Button href={greetingLink} external variant="outline" icon="whatsapp-logo">Chat WhatsApp</Button>
+      </div>
+    </div>
+
+    <div class="fb__card">
+      <form class="form" novalidate data-feedback-form data-endpoint={site.appsScriptUrl} data-max={MAX_MESSAGE}>
+        <div class="field">
+          <label for="fb-name" class="field__label">Nama <span class="field__optional">(opsional)</span></label>
+          <input id="fb-name" name="name" class="field__input" type="text" maxlength="100" autocomplete="name" placeholder="Nama Anda" />
+        </div>
+
+        <fieldset class="field rating">
+          <legend class="field__label">Rating</legend>
+          <div class="rating__stars">
+            {
+              [1, 2, 3, 4, 5].map((n) => (
+                <label class="rating__star">
+                  <input type="radio" name="rating" value={n} class="visually-hidden" aria-label={`${n} dari 5`} />
+                  <span class="rating__off"><Icon name="star" size="var(--size-star-icon)" /></span>
+                  <span class="rating__on"><Icon name="star" weight="fill" size="var(--size-star-icon)" /></span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="field" data-field="message">
+          <label for="fb-message" class="field__label">
+            Pesan <span class="field__required" aria-hidden="true">*</span>
+          </label>
+          <textarea
+            id="fb-message"
+            name="message"
+            class="field__input field__textarea"
+            required
+            maxlength={MAX_MESSAGE}
+            placeholder="Tulis kritik atau saran Anda"
+            aria-describedby="fb-message-error"></textarea>
+          <p id="fb-message-error" class="field__error" aria-live="polite">
+            <span class="field__error-icon" hidden data-error-icon><Icon name="warning-circle" /></span>
+            <span data-error-text></span>
+          </p>
+        </div>
+
+        <div class="form__trap" aria-hidden="true">
+          <label for="fb-website">Website</label>
+          <input id="fb-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <p class="form__status" role="alert" data-form-error hidden>
+          <Icon name="warning-circle" />
+          <span>Masukan gagal terkirim. Coba lagi atau hubungi kami lewat WhatsApp.</span>
+        </p>
+
+        <button type="submit" class="form__submit" data-submit>
+          <span class="form__spinner" hidden data-spinner><Icon name="circle-notch" /></span>
+          <span data-submit-label>Kirim Masukan</span>
+        </button>
+      </form>
+
+      <div class="success" hidden tabindex="-1" data-feedback-success>
+        <span class="success__icon"><Icon name="check-circle" size="var(--icon-success)" /></span>
+        <h3 class="success__title">Terima kasih, masukan Anda sudah kami terima.</h3>
+        <p class="success__text">Kami membacanya bersama tim warung. Kalau perlu jawaban cepat, hubungi kami lewat WhatsApp.</p>
+        <Button variant="outline" block data-feedback-again>Kirim masukan lain</Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../scripts/feedback';
+</script>
+
+<style>
+  .fb {
+    background: var(--color-bg-subtle);
+  }
+
+  .fb__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-10);
+    padding-bottom: var(--space-12);
+  }
+
+  .fb__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .fb__lead {
+    color: var(--color-text-muted);
+  }
+
+  .fb__quick {
+    display: none;
+  }
+
+  .fb__card {
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .field__label {
+    padding: 0;
+    font-weight: var(--weight-semibold);
+    line-height: 1.25;
+  }
+
+  .field__optional {
+    margin-left: var(--space-1);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-regular);
+    color: var(--color-text-muted);
+  }
+
+  .field__required {
+    font-weight: var(--weight-bold);
+    color: var(--color-error);
+  }
+
+  .field__input {
+    width: 100%;
+    height: var(--size-input);
+    padding: 0 var(--space-3-5);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border-input);
+    border-radius: var(--radius-md);
+    line-height: var(--leading-body);
+  }
+
+  .field__textarea {
+    height: var(--size-textarea);
+    padding: var(--space-3-5);
+    resize: vertical;
+  }
+
+  .field__input::placeholder {
+    color: var(--color-text-placeholder);
+  }
+
+  .field__input:focus-visible {
+    outline: var(--border-width-focus) solid var(--color-ink);
+    outline-offset: -1px;
+  }
+
+  .field.has-error .field__label {
+    color: var(--color-error);
+  }
+
+  .field.has-error .field__input {
+    background: var(--color-error-tint);
+    border: var(--border-width-focus) solid var(--color-error);
+  }
+
+  /* Wilayah aria-live selalu ada; tanpa tinggi saat kosong */
+  .field__error:has([data-error-text]:empty) {
+    margin-top: calc(-1 * var(--space-2));
+  }
+
+  .field__error-icon {
+    display: inline-flex;
+  }
+
+  .field__error-icon[hidden] {
+    display: none;
+  }
+
+  .field__error,
+  .form__status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    font-size: var(--text-error);
+    font-weight: var(--weight-semibold);
+    color: var(--color-error);
+  }
+
+  .form__status[hidden] {
+    display: none;
+  }
+
+  .rating {
+    gap: var(--space-1);
+  }
+
+  .rating__stars {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .rating__star {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-star);
+    height: var(--size-star);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    color: var(--color-icon-muted);
+  }
+
+  .rating__star span {
+    display: inline-flex;
+  }
+
+  .rating__on {
+    display: none !important;
+  }
+
+  /* Bintang terpilih + semua bintang sebelumnya berwarna hijau */
+  .rating__stars:has(input:checked) .rating__star:has(~ .rating__star input:checked),
+  .rating__star:has(input:checked) {
+    color: var(--color-rating);
+  }
+
+  .rating__stars:has(input:checked) .rating__star:has(~ .rating__star input:checked) .rating__on,
+  .rating__star:has(input:checked) .rating__on {
+    display: inline-flex !important;
+  }
+
+  .rating__stars:has(input:checked) .rating__star:has(~ .rating__star input:checked) .rating__off,
+  .rating__star:has(input:checked) .rating__off {
+    display: none;
+  }
+
+  .rating__star:has(input:focus-visible) {
+    outline: var(--border-width-focus) solid var(--color-ink);
+  }
+
+  .form__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: var(--size-button-lg);
+    padding: 0 var(--space-btn-x);
+    background: var(--color-primary);
+    border-radius: var(--radius-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--color-on-primary);
+  }
+
+  .form__submit[aria-disabled='true'] {
+    opacity: 0.75;
+    cursor: progress;
+  }
+
+  .form__spinner {
+    display: inline-flex;
+  }
+
+  .form__spinner[hidden] {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .form__spinner :global(.icon) {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3-5);
+    padding: var(--space-3) 0;
+    text-align: center;
+  }
+
+  .success[hidden] {
+    display: none;
+  }
+
+  .success:focus {
+    outline: none;
+  }
+
+  .success__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-success-icon);
+    height: var(--size-success-icon);
+    border-radius: var(--radius-full);
+    background: var(--color-accent-tint);
+    color: var(--color-accent);
+  }
+
+  .success__title {
+    font-size: var(--text-success);
+    line-height: var(--leading-success);
+  }
+
+  .success__text {
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .fb__inner {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-20);
+      padding-top: var(--space-20);
+      padding-bottom: var(--space-20);
+    }
+
+    .fb__intro {
+      flex: 1 1 0;
+      gap: var(--space-4);
+      padding-top: var(--space-2);
+    }
+
+    .fb__lead {
+      max-width: var(--intro-width-lg);
+      font-size: var(--text-body-lg);
+    }
+
+    .fb__quick {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+    }
+
+    .fb__quick-label {
+      font-weight: var(--weight-semibold);
+    }
+
+    .fb__card {
+      flex: none;
+      width: var(--feedback-card-width);
+      padding: var(--space-7);
+    }
+  }
+</style>

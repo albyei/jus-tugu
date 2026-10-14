@@ -1,0 +1,263 @@
+---
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { site, fullAddress, hoursText, mapsDirectionsUrl, mapsEmbedUrl } from '../data/site';
+---
+
+<section id="lokasi" class="loc" aria-labelledby="loc-title">
+  <div class="loc__inner container">
+    <div class="loc__map" data-map>
+      <div class="loc__placeholder" data-map-placeholder>
+        <span class="loc__pin"><Icon name="map-pin" weight="bold" size="var(--icon-map)" /></span>
+        <p class="loc__caption">Peta Google Maps</p>
+        <Button variant="outline" data-map-load data-src={mapsEmbedUrl}>Tampilkan peta</Button>
+      </div>
+    </div>
+
+    <div class="loc__info">
+      <h2 id="loc-title" class="section-title">Lokasi Jus Tugu</h2>
+
+      <div class="loc__address">
+        <div class="loc__row">
+          <span class="loc__icon"><Icon name="map-pin" size="var(--icon-lg)" /></span>
+          <div>
+            <p class="loc__label">Alamat</p>
+            <address class="loc__text">{fullAddress}</address>
+          </div>
+        </div>
+        <div class="loc__row">
+          <span class="loc__icon"><Icon name="flag" size="var(--icon-lg)" /></span>
+          <div>
+            <p class="loc__label">Patokan</p>
+            <p class="loc__text">{site.landmark}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hours">
+        <p id="hours-title" class="hours__title">
+          <span class="loc__icon"><Icon name="clock" /></span>
+          Jam Buka
+        </p>
+        <table class="hours__table" aria-labelledby="hours-title">
+        <tbody>
+          {
+            site.openingHours.map((day, index) => (
+              <tr data-day={(index + 1) % 7}>
+                <th scope="row">
+                  {day.label}
+                  <span class="hours__today" hidden>
+                    {' '}
+                    (hari ini)
+                  </span>
+                </th>
+                <td>{hoursText(day)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+        </table>
+      </div>
+
+      <p class="loc__access">{site.access}</p>
+
+      <div class="loc__buttons">
+        <Button href={mapsDirectionsUrl} external icon="navigation-arrow" block>Petunjuk Arah</Button>
+        <Button href={site.social.gofood} external variant="outline" icon="fork-knife" block>Pesan di GoFood</Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tandai hari ini di tabel jam buka (getDay: 0 = Minggu)
+  const today = new Date().getDay();
+  const row = document.querySelector<HTMLElement>(`.hours__table tr[data-day="${today}"]`);
+  if (row) {
+    row.classList.add('is-today');
+    row.querySelector<HTMLElement>('.hours__today')?.removeAttribute('hidden');
+  }
+
+  // Peta baru dimuat setelah tombol ditekan
+  const button = document.querySelector<HTMLButtonElement>('[data-map-load]');
+  button?.addEventListener('click', () => {
+    const map = document.querySelector<HTMLElement>('[data-map]');
+    if (!map) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = button.dataset.src ?? '';
+    iframe.title = 'Peta lokasi Jus Tugu di Google Maps';
+    iframe.loading = 'lazy';
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    iframe.className = 'loc__iframe';
+    map.replaceChildren(iframe);
+    iframe.focus();
+  });
+</script>
+
+<style>
+  .loc {
+    background: var(--color-bg);
+  }
+
+  .loc__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-10);
+    padding-bottom: var(--space-10);
+  }
+
+  .loc__map {
+    order: 1;
+    height: var(--map-height-mobile);
+    overflow: hidden;
+    background: var(--color-bg-subtle);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  .loc__placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1-5);
+  }
+
+  .loc__pin,
+  .loc__icon {
+    display: inline-flex;
+    color: var(--color-accent);
+  }
+
+  .loc__caption {
+    margin-bottom: var(--space-1-5);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+  }
+
+  .loc__map :global(.loc__iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* Mobile: judul di atas peta, info di bawah */
+  .loc__info {
+    display: contents;
+  }
+
+  .loc__info > h2 {
+    order: 0;
+  }
+
+  .loc__info > :not(h2) {
+    order: 2;
+  }
+
+  .loc__address {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .loc__row {
+    display: flex;
+    gap: var(--space-2-5);
+  }
+
+  .loc__label {
+    font-size: var(--text-caption);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .loc__text {
+    font-style: normal;
+  }
+
+  .hours {
+    padding: var(--space-1-5) var(--space-4);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .hours__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2-5) 0;
+    font-weight: var(--weight-bold);
+    line-height: 1.25;
+  }
+
+  .hours__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .hours th,
+  .hours td {
+    padding: var(--space-row-y) 0;
+    border-top: var(--border-width) solid var(--color-border);
+    line-height: 1.25;
+  }
+
+  .hours th {
+    text-align: left;
+    font-weight: var(--weight-medium);
+  }
+
+  .hours td {
+    text-align: right;
+    font-weight: var(--weight-semibold);
+  }
+
+  .hours tr:global(.is-today) th {
+    font-weight: var(--weight-bold);
+  }
+
+  .loc__access {
+    font-weight: var(--weight-medium);
+  }
+
+  .loc__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2-5);
+  }
+
+  @media (min-width: 1024px) {
+    .loc__inner {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-14);
+      padding-top: var(--space-20);
+      padding-bottom: var(--space-20);
+    }
+
+    .loc__map {
+      order: 0;
+      flex: 1 1 0;
+      min-width: 0;
+      height: var(--map-height);
+    }
+
+    .loc__info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+      flex: none;
+      width: var(--location-info-width);
+    }
+
+    .loc__buttons {
+      flex-direction: row;
+    }
+  }
+</style>

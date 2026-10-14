@@ -1,0 +1,309 @@
+---
+/**
+ * Isi ringkasan pesanan. Dipakai di bottom sheet (mobile) dan panel samping (desktop).
+ * Daftar item diisi oleh scripts/cart.ts dari <template id="cart-line-template">.
+ */
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { greetingLink } from '../scripts/whatsapp';
+
+interface Props {
+  variant: 'sheet' | 'panel';
+}
+
+const { variant } = Astro.props;
+const id = `order-${variant}`;
+const isSheet = variant === 'sheet';
+---
+
+<div class:list={['summary', `summary--${variant}`]} data-order-summary>
+  {
+    isSheet && (
+      <div class="summary__handle" aria-hidden="true">
+        <span />
+      </div>
+    )
+  }
+  <div class="summary__head">
+    <h2 id={`${id}-title`} class="summary__title" tabindex="-1" data-summary-focus={isSheet ? undefined : ''}>
+      Pesanan Anda
+    </h2>
+    {
+      isSheet && (
+        <button type="button" class="summary__close" aria-label="Tutup pesanan" data-sheet-close data-summary-focus>
+          <Icon name="x" size="var(--icon-lg)" />
+        </button>
+      )
+    }
+  </div>
+
+  <div class="summary__filled" data-cart-filled hidden>
+    <ul class="summary__list" data-cart-list></ul>
+    <p class="summary__total">
+      <span>Total (<span data-cart-count>0</span> item)</span>
+      <span class="summary__total-value" data-cart-total>Rp0</span>
+    </p>
+    <div class="summary__notes">
+      <label for={`${id}-notes`} class="summary__label">Catatan <span>(opsional)</span></label>
+      <textarea
+        id={`${id}-notes`}
+        class="summary__textarea"
+        rows="2"
+        maxlength="300"
+        placeholder="Misalnya: kurangi gula, tanpa es"
+        data-cart-notes></textarea>
+    </div>
+    <div class="summary__actions">
+      <Button href={greetingLink} external size="xl" block icon="whatsapp-logo" data-wa-order>Kirim lewat WhatsApp</Button>
+      <p class="summary__hint">WhatsApp akan terbuka dengan daftar pesanan yang sudah terisi.</p>
+    </div>
+  </div>
+
+  {
+    !isSheet && (
+      <div class="summary__empty" data-cart-empty>
+        <p>Tekan + Tambah pada menu yang Anda pilih, lalu kirim pesanan lewat WhatsApp.</p>
+        <Button href={greetingLink} external variant="outline" block icon="whatsapp-logo">
+          Chat WhatsApp
+        </Button>
+      </div>
+    )
+  }
+
+  {
+    isSheet && (
+      <template id="cart-line-template">
+        <li class="line">
+          <div class="line__info">
+            <p class="line__name" data-line-name />
+            <p class="line__sub" data-line-sub />
+          </div>
+          <div class="line__stepper" role="group" data-line-group>
+            <button type="button" class="line__btn" data-line-action="dec">
+              <span data-icon-minus>
+                <Icon name="minus" />
+              </span>
+              <span data-icon-trash hidden>
+                <Icon name="trash" />
+              </span>
+            </button>
+            <span class="line__count" data-line-count />
+            <button type="button" class="line__btn" data-line-action="inc">
+              <Icon name="plus" />
+            </button>
+          </div>
+        </li>
+      </template>
+    )
+  }
+</div>
+
+<style>
+  .summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .summary__handle {
+    display: flex;
+    justify-content: center;
+  }
+
+  .summary__handle span {
+    width: var(--size-grabber-w);
+    height: var(--size-grabber-h);
+    border-radius: var(--radius-grabber);
+    background: var(--color-border-input);
+  }
+
+  .summary__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--size-touch);
+  }
+
+  .summary--panel .summary__head {
+    min-height: 0;
+  }
+
+  .summary__title {
+    font-size: var(--text-sheet-title);
+    line-height: var(--leading-h3);
+  }
+
+  .summary__title:focus {
+    outline: none;
+  }
+
+  .summary--panel .summary__title {
+    font-size: var(--text-panel-title);
+  }
+
+  .summary__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-subtle);
+    color: var(--color-text);
+  }
+
+  .summary__filled {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .summary__filled[hidden],
+  .summary__empty[hidden] {
+    display: none;
+  }
+
+  .summary__list {
+    border-top: var(--border-width) solid var(--color-border);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3-5) 0;
+  }
+
+  .line + .line {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .line__info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-0-5);
+  }
+
+  .line__name {
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-item);
+  }
+
+  .line__sub {
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .line__stepper {
+    flex: none;
+    display: flex;
+    align-items: center;
+    height: var(--size-touch);
+    padding: 0 var(--space-0-5);
+    border: var(--border-width-strong) solid var(--color-accent);
+    border-radius: var(--radius-full);
+  }
+
+  .line__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-step-sheet);
+    height: calc(var(--size-touch) - 3px);
+    border-radius: var(--radius-full);
+    color: var(--color-accent);
+  }
+
+  .line__btn span {
+    display: inline-flex;
+  }
+
+  .line__btn span[hidden] {
+    display: none;
+  }
+
+  .line__count {
+    min-width: var(--size-step-count-sheet);
+    text-align: center;
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .summary__total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--text-item);
+    font-weight: var(--weight-semibold);
+  }
+
+  .summary__total-value {
+    font-family: var(--font-heading);
+    font-size: var(--text-total);
+    font-weight: var(--weight-extrabold);
+    line-height: var(--leading-h3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .summary__notes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .summary__label {
+    font-weight: var(--weight-semibold);
+  }
+
+  .summary__label span {
+    margin-left: var(--space-1);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-regular);
+    color: var(--color-text-muted);
+  }
+
+  .summary__textarea {
+    width: 100%;
+    height: var(--size-notes);
+    padding: var(--space-3-5);
+    border: var(--border-width) solid var(--color-border-input);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    line-height: var(--leading-body);
+    resize: vertical;
+  }
+
+  .summary__textarea::placeholder {
+    color: var(--color-text-placeholder);
+  }
+
+  .summary__textarea:focus-visible {
+    outline: none;
+    border: var(--border-width-focus) solid var(--color-ink);
+    padding: calc(var(--space-3-5) - 1px);
+  }
+
+  .summary__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .summary__hint {
+    font-size: var(--text-caption);
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+
+  .summary__empty {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    color: var(--color-text-muted);
+  }
+</style>

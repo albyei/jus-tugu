@@ -1,0 +1,60 @@
+---
+import type { MenuItem } from '../data/menu';
+import { formatRupiah } from '../lib/format';
+import QtyControl from './QtyControl.astro';
+
+interface Props {
+  item: MenuItem;
+  /** Item terakhir di kolom pertama (tampilan 2 kolom desktop). */
+  columnEnd?: boolean;
+}
+
+const { item, columnEnd = false } = Astro.props;
+---
+
+<li class="menu-item" data-menu-item data-search={`${item.name} ${item.orderName}`} data-column-end={columnEnd || undefined}>
+  <div class="menu-item__info">
+    <h3 class="menu-item__name">{item.name}</h3>
+    <p class="menu-item__desc">{item.description}</p>
+  </div>
+  <p class="menu-item__price">{formatRupiah(item.price)}</p>
+  <QtyControl slug={item.slug} name={item.orderName} />
+</li>
+
+<style>
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2-5);
+    padding: var(--space-3-5) 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .menu-item__info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-0-5);
+  }
+
+  .menu-item__name {
+    font-family: var(--font-body);
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-item);
+  }
+
+  .menu-item__desc {
+    color: var(--color-text-muted);
+  }
+
+  .menu-item__price {
+    flex: none;
+    min-width: var(--size-price);
+    text-align: right;
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+</style>

@@ -1,0 +1,146 @@
+---
+import { testimonials } from '../data/testimonials';
+import Icon from './Icon.astro';
+import ScrollArrows from './ScrollArrows.astro';
+---
+
+<section class="testi" aria-labelledby="testi-title">
+  <div class="testi__head">
+    <h2 id="testi-title" class="section-title">Kata Pelanggan</h2>
+    <p class="testi__lead">Ulasan dari pembeli yang pesan langsung di warung maupun lewat GoFood.</p>
+    <ScrollArrows target="testi-track" label="ulasan" />
+  </div>
+  <ul id="testi-track" class="testi__track scroller">
+    {
+      testimonials.map((t) => (
+        <li class="quote">
+          <figure>
+            <p class="quote__stars" role="img" aria-label={`Rating ${t.rating} dari 5`}>
+              {[1, 2, 3, 4, 5].map((n) =>
+                n <= t.rating ? (
+                  <Icon name="star" weight="fill" size="var(--icon-sm)" class="star-on" />
+                ) : (
+                  <Icon name="star" size="var(--icon-sm)" class="star-off" />
+                ),
+              )}
+            </p>
+            <blockquote class="quote__text">
+              <p>“{t.quote}”</p>
+            </blockquote>
+            <figcaption class="quote__who">
+              <strong>{t.name}</strong> <span>· via {t.source}</span>
+            </figcaption>
+          </figure>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .testi {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-10) 0;
+    background: var(--color-bg);
+    border-top: var(--border-width) solid var(--color-border);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .testi__head {
+    padding-inline: var(--page-gutter);
+  }
+
+  .testi__lead {
+    display: none;
+    font-size: var(--text-body-lg-fixed);
+    color: var(--color-text-muted);
+  }
+
+  .testi__track {
+    gap: var(--space-3);
+    padding-inline: var(--page-gutter);
+  }
+
+  .quote {
+    width: var(--testimonial-width);
+    padding: var(--space-4-5);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  .quote figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .quote__stars {
+    display: flex;
+    gap: var(--space-0-5);
+  }
+
+  .quote__stars :global(.star-on) {
+    color: var(--color-rating);
+  }
+
+  .quote__stars :global(.star-off) {
+    color: var(--color-icon-muted);
+  }
+
+  .quote__who strong {
+    font-weight: var(--weight-bold);
+  }
+
+  .quote__who span {
+    margin-left: var(--space-1);
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .testi {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-14);
+      padding: var(--space-18) 0 var(--space-18) var(--page-gutter);
+    }
+
+    .testi__head {
+      flex: none;
+      min-width: var(--testimonial-heading-width);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      padding: 0;
+    }
+
+    .testi__head h2 {
+      white-space: nowrap;
+    }
+
+    .testi__lead {
+      display: block;
+      max-width: var(--testimonial-heading-width);
+    }
+
+    .testi__head :global(.arrows) {
+      padding-top: var(--space-2);
+    }
+
+    .testi__track {
+      flex: 1 1 0;
+      min-width: 0;
+      gap: var(--space-5);
+      padding-inline: 0 var(--page-gutter);
+      scroll-padding-inline: 0;
+    }
+
+    .quote {
+      width: var(--testimonial-width-lg);
+      padding: var(--space-6);
+    }
+  }
+</style>

@@ -1,0 +1,137 @@
+---
+import '@fontsource/bricolage-grotesque/latin-800.css';
+import '@fontsource/plus-jakarta-sans/latin-400.css';
+import '@fontsource/plus-jakarta-sans/latin-500.css';
+import '@fontsource/plus-jakarta-sans/latin-600.css';
+import '@fontsource/plus-jakarta-sans/latin-700.css';
+import '../styles/global.css';
+import headingFont from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2?url';
+import { site, isPlaceholder, realUrl } from '../data/site';
+import { categories, minPrice, maxPrice } from '../data/menu';
+import { formatRupiah } from '../lib/format';
+import IconSprite from '../components/IconSprite.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const siteUrl = new URL('/', Astro.site ?? site.url).href;
+const canonical = new URL(Astro.url.pathname, siteUrl).href;
+const ogImage = new URL('/og-image.jpg', siteUrl).href;
+const ogAlt = 'Jus buah, sop buah, dan salad buah Jus Tugu di Senggreng, Sumberpucung';
+
+/* ---------- JSON-LD (dibangun dari site.ts & menu.ts) ---------- */
+const telephone = isPlaceholder(site.waNumber) ? undefined : `+${site.waNumber.replace(/\D/g, '').replace(/^0/, '62')}`;
+const sameAs = [site.social.instagram, site.social.facebook, site.social.gofood]
+  .map(realUrl)
+  .filter((url): url is string => Boolean(url));
+
+const openingHoursSpecification = site.openingHours
+  .filter((day) => day.opens && day.closes)
+  .map((day) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: `https://schema.org/${day.dayOfWeek}`,
+    opens: day.opens,
+    closes: day.closes,
+  }));
+
+const menuId = `${siteUrl}#menu`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Restaurant',
+      '@id': `${siteUrl}#usaha`,
+      name: site.name,
+      url: siteUrl,
+      image: ogImage,
+      ...(telephone ? { telephone } : {}),
+      priceRange: `${formatRupiah(minPrice)}–${formatRupiah(maxPrice)}`,
+      servesCuisine: site.servesCuisine,
+      address: {
+        '@type': 'PostalAddress',
+        ...(isPlaceholder(site.address.street) ? {} : { streetAddress: site.address.street }),
+        addressLocality: site.address.locality,
+        addressRegion: site.address.region,
+        ...(isPlaceholder(site.address.postalCode) ? {} : { postalCode: site.address.postalCode }),
+        addressCountry: site.address.country,
+      },
+      ...(site.geo.lat !== null && site.geo.lng !== null
+        ? { geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng } }
+        : {}),
+      ...(openingHoursSpecification.length ? { openingHoursSpecification } : {}),
+      ...(sameAs.length ? { sameAs } : {}),
+      acceptsReservations: false,
+      hasMenu: { '@id': menuId },
+    },
+    {
+      '@type': 'Menu',
+      '@id': menuId,
+      name: `Menu ${site.name}`,
+      url: menuId,
+      inLanguage: 'id',
+      hasMenuSection: categories.map((category) => ({
+        '@type': 'MenuSection',
+        name: category.name,
+        url: `${siteUrl}#${category.id}`,
+        hasMenuItem: category.items.map((item) => ({
+          '@type': 'MenuItem',
+          name: item.orderName,
+          description: item.description,
+          offers: {
+            '@type': 'Offer',
+            price: item.price,
+            priceCurrency: 'IDR',
+          },
+        })),
+      })),
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content={site.themeColor} />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="preload" href={headingFont} as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogAlt} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <slot />
+    <IconSprite />
+  </body>
+</html>
