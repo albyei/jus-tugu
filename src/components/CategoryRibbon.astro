@@ -1,0 +1,95 @@
+---
+/**
+ * Pita kategori hitam di atas daftar menu (Menu Lengkap & halaman kategori).
+ * Link "Lihat detail" berada di luar <h2> agar judul tetap bersih.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  id?: string;
+  count: number;
+  /** Halaman kategori tujuan; tanpa link bila kosong. */
+  link?: { href: string; name: string };
+}
+
+const { title, id, count, link } = Astro.props;
+---
+
+<div class="ribbon">
+  <h2 id={id} class="ribbon__title">{title}</h2>
+  <div class="ribbon__end">
+    <span class:list={['ribbon__count', { 'ribbon__count--linked': link }]}>{count} menu</span>
+    {
+      link && (
+        <a href={link.href} class="ribbon__link" aria-label={`Lihat detail ${link.name}`}>
+          <span>Lihat detail</span>
+          <Icon name="arrow-right" weight="bold" size="var(--icon-xs)" />
+        </a>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: var(--size-ribbon);
+    padding: 0 var(--space-4);
+    background: var(--color-ink);
+    border-radius: var(--radius-md);
+    color: var(--color-on-ink);
+  }
+
+  .ribbon__title {
+    min-width: 0;
+    padding: var(--space-2) 0;
+    font-size: var(--text-ribbon);
+    letter-spacing: var(--tracking-ribbon);
+    line-height: var(--leading-h3);
+  }
+
+  .ribbon__end {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .ribbon__count {
+    font-size: var(--text-label-location);
+    font-weight: var(--weight-semibold);
+    color: var(--color-on-ink-muted);
+    white-space: nowrap;
+  }
+
+  .ribbon__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--size-touch);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-semibold);
+    color: var(--color-on-ink);
+    white-space: nowrap;
+  }
+
+  .ribbon__link span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ribbon__link:focus-visible {
+    outline-color: var(--color-on-ink);
+  }
+
+  /* Di bawah 1024px jumlah menu disembunyikan bila ada link, agar keduanya muat */
+  @media (max-width: 1023.98px) {
+    .ribbon__count--linked {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,40 @@
+---
+/** Keadaan kosong saat filter artikel tidak punya hasil. Tombol mengembalikan filter ke "Semua". */
+interface Props {
+  hidden?: boolean;
+}
+
+const { hidden = false } = Astro.props;
+---
+
+<div class="empty" role="status" hidden={hidden} data-filter-empty>
+  <p class="empty__text">Belum ada artikel di kategori ini.</p>
+  <button type="button" class="empty__reset" data-filter-reset>Lihat semua artikel</button>
+</div>
+
+<style>
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-10) var(--space-6);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+    text-align: center;
+  }
+
+  .empty__text {
+    font-size: var(--text-item);
+    font-weight: var(--weight-semibold);
+  }
+
+  .empty__reset {
+    min-height: var(--size-touch);
+    padding: 0 var(--space-2);
+    font-weight: var(--weight-semibold);
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

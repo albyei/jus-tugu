@@ -1,0 +1,519 @@
+---
+/**
+ * Halaman kategori menu: /menu/sop-buah, /menu/salad-buah, /menu/jus-buah, /menu/jus-yakult.
+ * Item, harga, dan jumlah dibaca dari menu.ts lewat data/categoryPages.ts.
+ */
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CategoryRibbon from '../../components/CategoryRibbon.astro';
+import MenuItem from '../../components/MenuItem.astro';
+import OrderSummary from '../../components/OrderSummary.astro';
+import OrderSteps from '../../components/OrderSteps.astro';
+import FaqAccordion from '../../components/FaqAccordion.astro';
+import CategoryCard from '../../components/CategoryCard.astro';
+import CartData from '../../components/CartData.astro';
+import OrderBar from '../../components/OrderBar.astro';
+import OrderSheet from '../../components/OrderSheet.astro';
+import QtyStepperTemplate from '../../components/QtyStepperTemplate.astro';
+import Icon from '../../components/Icon.astro';
+import { categoryPages, type CategoryPage } from '../../data/categoryPages';
+import { isPlaceholder } from '../../data/site';
+
+export const getStaticPaths = (() =>
+  categoryPages.map((page) => ({ params: { slug: page.slug }, props: { page } }))) satisfies GetStaticPaths;
+
+interface Props {
+  page: CategoryPage;
+}
+
+const { page } = Astro.props;
+const items = page.items();
+const groups = page.groups ?? [{ title: page.ribbonTitle, items }];
+const hasFaq = page.faq.some((item) => !isPlaceholder(item.a));
+const others = categoryPages.filter((other) => other.slug !== page.slug);
+const halfOf = (count: number) => Math.ceil(count / 2);
+---
+
+<BaseLayout title={page.title} description={page.description}>
+  <Header current="menu" />
+  <main>
+    <section class="head container" aria-labelledby="page-title">
+      <Breadcrumb items={[{ label: 'Beranda', href: '/' }, { label: 'Menu', href: '/#menu' }, { label: page.name }]} />
+      <div class="head__row">
+        <div class="head__text">
+          <h1 id="page-title" class="head__title">{page.h1}</h1>
+          <p class="head__intro">{page.intro}</p>
+          <p class="head__info">{page.infoLabel(items.length)}</p>
+        </div>
+        <Image
+          src={page.image.src}
+          alt={page.image.alt}
+          widths={[390, 560, 780, 1120]}
+          sizes="(min-width: 1024px) 560px, 100vw"
+          loading="eager"
+          fetchpriority="high"
+          class="head__photo"
+        />
+      </div>
+    </section>
+
+    <section class="choices container" aria-label={`Pilihan ${page.name}`}>
+      <div class="choices__list">
+        {
+          groups.map((group, groupIndex) => (
+            <section class="group" aria-labelledby={`group-${groupIndex}`}>
+              <CategoryRibbon id={`group-${groupIndex}`} title={group.title} count={group.items.length} />
+              <ul class="group__items" style={`--rows: ${halfOf(group.items.length)}`}>
+                {group.items.map((item, index) => (
+                  <MenuItem item={item} columnEnd={index === halfOf(group.items.length) - 1} />
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+      <aside class="choices__panel" aria-labelledby="order-panel-title">
+        <OrderSummary variant="panel" />
+      </aside>
+    </section>
+
+    <section class="detail" aria-labelledby="detail-title">
+      <div class="detail__inner container">
+        <h2 id="detail-title" class="section-title detail__title">{page.detailTitle}</h2>
+        <div class="detail__photos">
+          {
+            page.detailPhotos.map((photo, index) => (
+              <div class:list={['detail__crop', `detail__crop--${index + 1}`]}>
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  widths={[240, 480, 680]}
+                  sizes={index === 0 ? '(min-width: 1024px) 430px, 50vw' : '(min-width: 1024px) 240px, 50vw'}
+                  loading="lazy"
+                />
+              </div>
+            ))
+          }
+        </div>
+        <div class="detail__text">
+          {!isPlaceholder(page.detailText) && <p class="detail__body">{page.detailText}</p>}
+          {page.detailCaption && <p class="detail__caption">{page.detailCaption}</p>}
+        </div>
+      </div>
+    </section>
+
+    <section class="how container" aria-labelledby="how-title">
+      <h2 id="how-title" class="section-title">Cara Pesan</h2>
+      <OrderSteps />
+    </section>
+
+    {
+      hasFaq && (
+        <section class="faq-section" aria-labelledby="faq-title">
+          <div class="faq-section__inner container">
+            <h2 id="faq-title" class="section-title faq-section__title">
+              Tanya Jawab
+            </h2>
+            <div class="faq-section__list">
+              <FaqAccordion items={page.faq} />
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="others" aria-labelledby="others-title">
+      <div class="others__head container">
+        <h2 id="others-title" class="section-title">Menu Lainnya</h2>
+        <span class="others__hint" aria-hidden="true">Geser <Icon name="arrow-right" size="var(--icon-xs)" /></span>
+      </div>
+      <ul class="others__list scroller">
+        {
+          others.map((other) => (
+            <li>
+              <CategoryCard page={other} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+  <Footer />
+  <OrderBar />
+  <OrderSheet />
+  <QtyStepperTemplate />
+  <CartData />
+</BaseLayout>
+
+<script>
+  import '../../scripts/cart';
+</script>
+
+<style>
+  /* ---- Kepala ---- */
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-8);
+    background: var(--color-bg);
+  }
+
+  .head__row {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-4);
+  }
+
+  .head__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+  }
+
+  .head__title {
+    font-size: var(--text-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .head__intro {
+    font-size: var(--text-body-lg);
+  }
+
+  .head__info {
+    font-size: var(--text-caption);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+  }
+
+  .head :global(.head__photo) {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+  }
+
+  /* ---- Pilihan menu ---- */
+  .choices {
+    padding-bottom: var(--space-8);
+    background: var(--color-bg);
+  }
+
+  .choices__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .group__items > :global(li:last-child) {
+    border-bottom: 0;
+  }
+
+  .choices__panel {
+    display: none;
+  }
+
+  /* ---- Isi … Kami ---- */
+  .detail {
+    background: var(--color-bg-subtle);
+  }
+
+  .detail__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+
+  .detail__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .detail__text:empty {
+    display: none;
+  }
+
+  .detail__body {
+    font-size: var(--text-body-lg-fixed);
+  }
+
+  .detail__caption {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  /* Foto besar di kiri, dua foto kecil bertumpuk di kanan */
+  .detail__photos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 96px);
+    gap: var(--space-2);
+  }
+
+  .detail__crop {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+  }
+
+  .detail__crop--1 {
+    grid-row: span 2;
+  }
+
+  .detail__crop :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Potongan sementara dari foto header — TODO: ganti dengan foto dekat asli */
+  .detail__crop--1 :global(img) {
+    object-position: 50% 45%;
+    transform: scale(2.6);
+  }
+
+  .detail__crop--2 :global(img) {
+    object-position: 40% 55%;
+    transform: scale(4);
+  }
+
+  .detail__crop--3 :global(img) {
+    object-position: 55% 55%;
+    transform: scale(1.6);
+  }
+
+  /* ---- Cara Pesan ---- */
+  .how {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+    background: var(--color-bg);
+  }
+
+  /* ---- Tanya Jawab ---- */
+  .faq-section {
+    background: var(--color-bg-subtle);
+  }
+
+  .faq-section__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+
+  /* ---- Menu Lainnya ---- */
+  .others {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-8) 0 var(--space-10);
+    background: var(--color-bg);
+  }
+
+  .others__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .others__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-label-location);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+  }
+
+  .others__list {
+    gap: var(--space-3);
+    padding: 0 var(--page-gutter);
+  }
+
+  .others__list > li {
+    width: 200px;
+  }
+
+  @media (min-width: 1024px) {
+    .head {
+      gap: var(--space-6);
+      padding-top: var(--space-4);
+      padding-bottom: var(--space-14);
+    }
+
+    .head__row {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-16);
+    }
+
+    .head__text {
+      flex: 1 1 0;
+      gap: var(--space-5);
+      padding-top: 0;
+    }
+
+    .head__intro {
+      font-size: 1.25rem;
+    }
+
+    .head__info {
+      font-size: var(--text-label-location);
+    }
+
+    .head :global(.head__photo) {
+      flex: none;
+      width: var(--hero-photo-width);
+      height: 400px;
+    }
+
+    .choices {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-10);
+      padding-bottom: var(--space-20);
+    }
+
+    .choices__list {
+      flex: 1 1 0;
+      min-width: 0;
+      gap: var(--space-9);
+    }
+
+    /* Panel pesanan sama dengan halaman utama */
+    .choices__panel {
+      display: block;
+      flex: none;
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-5));
+      width: var(--order-panel-width);
+      max-height: calc(100vh - var(--header-height) - var(--space-10));
+      overflow-y: auto;
+      padding: var(--space-5) var(--space-5) var(--space-6);
+      background: var(--color-surface);
+      border: var(--border-width) solid var(--color-border);
+      border-radius: var(--radius-xl);
+    }
+
+    /* Foto di kiri; judul + teks di kanan, rata tengah vertikal */
+    .detail__inner {
+      display: grid;
+      grid-template-columns: min(680px, 60%) minmax(0, 1fr);
+      grid-template-rows: 1fr auto auto 1fr;
+      grid-template-areas:
+        'photos .'
+        'photos title'
+        'photos text'
+        'photos .';
+      column-gap: var(--space-16);
+      row-gap: var(--space-5);
+      padding-top: var(--space-20);
+      padding-bottom: var(--space-20);
+    }
+
+    .detail__title {
+      grid-area: title;
+    }
+
+    .detail__photos {
+      grid-area: photos;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      height: 420px;
+      gap: var(--space-3);
+    }
+
+    .detail__crop {
+      border-radius: var(--radius-xl);
+    }
+
+    .detail__text {
+      grid-area: text;
+      gap: var(--space-5);
+    }
+
+    .detail__body {
+      font-size: 1.25rem;
+    }
+
+    .how {
+      gap: var(--space-8);
+      padding-top: var(--space-20);
+      padding-bottom: var(--space-20);
+    }
+
+    .faq-section__inner {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-16);
+      padding-top: var(--space-20);
+      padding-bottom: var(--space-20);
+    }
+
+    .faq-section__title {
+      flex: none;
+      width: 360px;
+    }
+
+    .faq-section__list {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .others {
+      gap: var(--space-8);
+      padding: var(--space-20) 0;
+    }
+
+    .others__hint {
+      display: none;
+    }
+
+    .others__list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-8);
+      overflow: visible;
+    }
+
+    .others__list > li {
+      width: auto;
+    }
+  }
+
+  /* Dua kolom menu bila cukup lebar, diisi per kolom (pola Menu Lengkap) */
+  @media (min-width: 1280px) {
+    .group__items {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(var(--rows), auto);
+      grid-auto-flow: column;
+      align-content: start;
+      column-gap: var(--space-8);
+    }
+
+    .group__items > :global([data-column-end]) {
+      border-bottom: 0;
+    }
+  }
+</style>

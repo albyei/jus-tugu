@@ -1,0 +1,77 @@
+---
+/** Tombol bagikan artikel: WhatsApp dan salin link. */
+import Button from './Button.astro';
+
+interface Props {
+  title: string;
+  url: string;
+}
+
+const { title, url } = Astro.props;
+const waShare = `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`;
+---
+
+<section class="share" aria-labelledby="share-title">
+  <h2 id="share-title" class="share__title">Bagikan artikel ini</h2>
+  <div class="share__buttons">
+    <Button href={waShare} external variant="outline" icon="whatsapp-logo">Bagikan ke WhatsApp</Button>
+    <Button variant="outline" icon="link-simple" data-copy-link={url}>Salin link</Button>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-copy-status></p>
+</section>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy-link]');
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  const label = button?.querySelector<HTMLElement>('.btn__label');
+
+  if (button && label) {
+    let timer: number | undefined;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copyLink ?? location.href);
+      } catch {
+        return; // clipboard tidak tersedia (mis. bukan HTTPS)
+      }
+      label.textContent = 'Link disalin';
+      if (status) status.textContent = 'Link artikel disalin';
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        label.textContent = 'Salin link';
+        if (status) status.textContent = '';
+      }, 2000);
+    });
+  }
+</script>
+
+<style>
+  .share {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .share__title {
+    font-family: var(--font-body);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0;
+  }
+
+  .share__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 1024px) {
+    .share {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .share__buttons {
+      flex-direction: row;
+    }
+  }
+</style>

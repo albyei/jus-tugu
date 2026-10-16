@@ -1,0 +1,92 @@
+---
+/** Breadcrumb + JSON-LD BreadcrumbList. Item terakhir = halaman ini (bukan link). */
+import { site } from '../data/site';
+
+interface Props {
+  items: { label: string; href?: string }[];
+}
+
+const { items } = Astro.props;
+const base = Astro.site ?? site.url;
+const pageUrl = new URL(Astro.url.pathname, base).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: item.href ? new URL(item.href, base).href : pageUrl,
+  })),
+};
+---
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ol class="crumbs__list">
+    {
+      items.map((item, index) => {
+        const last = index === items.length - 1;
+        return (
+          <li class:list={['crumbs__item', { 'crumbs__item--current': last }]}>
+            {last || !item.href ? (
+              <span class="crumbs__text" aria-current={last ? 'page' : undefined}>
+                {item.label}
+              </span>
+            ) : (
+              <a href={item.href}>{item.label}</a>
+            )}
+            {!last && (
+              <span class="crumbs__sep" aria-hidden="true">
+                /
+              </span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<style>
+  .crumbs__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    min-width: 0;
+    padding: var(--space-3) 0;
+    font-size: var(--text-caption);
+  }
+
+  .crumbs__item {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    white-space: nowrap;
+  }
+
+  .crumbs__item a {
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+    text-underline-offset: 3px;
+  }
+
+  .crumbs__sep {
+    color: var(--color-icon-muted);
+  }
+
+  /* Item terakhir boleh terpotong elipsis (1 baris) */
+  .crumbs__item--current {
+    flex: 0 1 auto;
+    min-width: 0;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+  }
+
+  .crumbs__item--current .crumbs__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

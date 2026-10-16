@@ -1,0 +1,51 @@
+---
+/** Foto dengan keterangan di isi artikel. */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  caption?: string;
+}
+
+const { src, alt, caption } = Astro.props;
+---
+
+<figure class="figure">
+  <Image
+    src={src}
+    alt={alt}
+    widths={[400, 680, 1020]}
+    sizes="(min-width: 1024px) 680px, 100vw"
+    loading="lazy"
+    class="figure__img"
+  />
+  {caption && <figcaption class="figure__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .figure :global(.figure__img) {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  .figure__caption {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .figure :global(.figure__img) {
+      height: 400px;
+    }
+  }
+</style>

@@ -1,0 +1,153 @@
+---
+/**
+ * Kartu artikel. Seluruh kartu adalah satu link.
+ * horizontal: daftar mobile (foto kecil di kiri). vertical: grid desktop (foto di atas).
+ */
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { articleUrl, categorySlug, readingMinutes, type Article } from '../lib/articles';
+import { formatTanggal } from '../lib/format';
+
+interface Props {
+  article: Article;
+  variant: 'horizontal' | 'vertical';
+  /** Heading kartu; h2 di daftar artikel, h3 di bawah section lain. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { article, variant, headingLevel = 'h3' } = Astro.props;
+const { data } = article;
+const Heading = headingLevel;
+const horizontal = variant === 'horizontal';
+---
+
+<a href={articleUrl(article)} class:list={['card', `card--${variant}`]} data-category={categorySlug(data.category)}>
+  {
+    data.cover ? (
+      <Image
+        src={data.cover}
+        alt={data.coverAlt ?? ''}
+        widths={horizontal ? [104, 208, 312] : [380, 760]}
+        sizes={horizontal ? '104px' : '(min-width: 1024px) 380px, 100vw'}
+        loading="lazy"
+        class="card__photo"
+      />
+    ) : (
+      <span class="card__photo card__photo--empty" aria-hidden="true">
+        <Icon name="image" size={horizontal ? '28px' : '36px'} />
+      </span>
+    )
+  }
+  <div class="card__text">
+    <span class="card__category">{data.category}</span>
+    <Heading class="card__title">{data.title}</Heading>
+    <span class="card__summary">{data.description}</span>
+    <span class="card__meta">{formatTanggal(data.date)} · {readingMinutes(article.body)} menit baca</span>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .card__photo {
+    flex: none;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  .card__photo--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-border);
+    color: var(--color-icon-muted);
+  }
+
+  .card__text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .card__category {
+    font-size: var(--text-badge);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.3px;
+    color: var(--color-accent);
+  }
+
+  .card__title {
+    font-family: var(--font-body);
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-card-name);
+    letter-spacing: 0;
+  }
+
+  .card__summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    color: var(--color-text-muted);
+    line-height: var(--leading-body);
+  }
+
+  .card__meta {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  /* ---- Horizontal (mobile) ---- */
+  .card--horizontal {
+    gap: var(--space-3-5);
+    padding: var(--space-4) 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  /* Kartu terakhir di daftar tanpa garis bawah */
+  :global(li:last-child) > .card--horizontal {
+    border-bottom: 0;
+  }
+
+  .card--horizontal .card__photo {
+    width: var(--space-26);
+    height: var(--space-26);
+  }
+
+  /* ---- Vertical (desktop) ---- */
+  .card--vertical {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .card--vertical .card__photo {
+    width: 100%;
+    height: 232px;
+    border-radius: var(--radius-xl);
+  }
+
+  .card--vertical .card__text {
+    gap: var(--space-2);
+  }
+
+  .card--vertical .card__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-card-title);
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-h3);
+  }
+
+  @media (hover: hover) {
+    .card:hover .card__title {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+</style>

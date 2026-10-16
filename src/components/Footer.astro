@@ -8,10 +8,35 @@ const socials = [
   { href: site.social.facebook, icon: 'facebook-logo', label: 'Facebook Jus Tugu' },
   { href: site.social.gofood, icon: 'fork-knife', label: 'Jus Tugu di GoFood' },
 ];
+const linkGroups = [
+  {
+    title: 'Menu',
+    links: [
+      { href: '/menu/sop-buah', label: 'Sop Buah' },
+      { href: '/menu/salad-buah', label: 'Salad Buah' },
+      { href: '/menu/jus-buah', label: 'Jus Buah' },
+      { href: '/menu/jus-yakult', label: 'Jus Yakult' },
+    ],
+  },
+  {
+    title: 'Info',
+    links: [
+      { href: '/artikel', label: 'Artikel' },
+      { href: '/#lokasi', label: 'Lokasi & Jam Buka' },
+      { href: '/#saran', label: 'Kritik & Saran' },
+    ],
+  },
+];
+interface Props {
+  /** Latar putih, untuk halaman yang section terakhirnya sudah berlatar bg-subtle. */
+  plain?: boolean;
+}
+
+const { plain = false } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
-<footer class="footer">
+<footer class:list={['footer', { 'footer--plain': plain }]}>
   <div class="footer__inner container">
     <div class="footer__top">
       <div class="footer__brand">
@@ -30,6 +55,24 @@ const year = new Date().getFullYear();
           <a href={greetingLink} target="_blank" rel="noopener">{site.waNumber}</a>
         </li>
       </ul>
+      <div class="footer__links">
+        {
+          linkGroups.map((group) => (
+            <nav class="footer__group" aria-labelledby={`footer-${group.title.toLowerCase()}`}>
+              <p id={`footer-${group.title.toLowerCase()}`} class="footer__group-title">
+                {group.title}
+              </p>
+              <ul class="footer__group-list">
+                {group.links.map((link) => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))
+        }
+      </div>
       <ul class="footer__social">
         {
           socials.map((social) => (
@@ -50,6 +93,11 @@ const year = new Date().getFullYear();
   .footer {
     background: var(--color-bg-subtle);
     border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .footer--plain,
+  :global(body:has(.footer--plain)) {
+    background: var(--color-bg);
   }
 
   .footer__inner {
@@ -77,7 +125,7 @@ const year = new Date().getFullYear();
   .footer__name {
     font-family: var(--font-heading);
     font-size: var(--text-brand);
-    font-weight: var(--weight-extrabold);
+    font-weight: var(--weight-brand);
     line-height: var(--leading-h3);
   }
 
@@ -108,6 +156,40 @@ const year = new Date().getFullYear();
 
   .footer__icon--wa {
     color: var(--color-whatsapp);
+  }
+
+  .footer__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .footer__group-title {
+    font-size: var(--text-caption);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.3px;
+    color: var(--color-text-muted);
+  }
+
+  .footer__group-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-0-5);
+  }
+
+  .footer__group-list a {
+    display: flex;
+    align-items: center;
+    min-height: var(--space-10);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .footer__group-list a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
   }
 
   .footer__social {
@@ -141,7 +223,7 @@ const year = new Date().getFullYear();
     .footer__top {
       flex-direction: row;
       align-items: flex-start;
-      gap: var(--space-16);
+      gap: var(--space-12);
       padding-bottom: var(--space-10);
     }
 
@@ -152,6 +234,25 @@ const year = new Date().getFullYear();
     .footer__contact {
       flex: none;
       width: var(--footer-contact-width);
+    }
+
+    /* Brand | Menu | Info | Kontak | Sosial: kolom tautan dipindah sebelum kontak */
+    .footer__links {
+      display: contents;
+    }
+
+    .footer__group {
+      flex: none;
+      order: 1;
+      width: var(--footer-links-width);
+    }
+
+    .footer__contact {
+      order: 2;
+    }
+
+    .footer__social {
+      order: 3;
     }
   }
 </style>

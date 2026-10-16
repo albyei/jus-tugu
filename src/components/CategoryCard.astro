@@ -1,0 +1,83 @@
+---
+/** Kartu ke halaman kategori ("Menu Lainnya"). */
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { categoryPageUrl, startingPrice, type CategoryPage } from '../data/categoryPages';
+
+interface Props {
+  page: CategoryPage;
+}
+
+const { page } = Astro.props;
+---
+
+<a href={categoryPageUrl(page.slug)} class="ccard">
+  <Image
+    src={page.image.src}
+    alt={page.image.alt}
+    widths={[200, 400, 760]}
+    sizes="(min-width: 1024px) 380px, 200px"
+    loading="lazy"
+    class="ccard__photo"
+  />
+  <span class="ccard__row">
+    <span class="ccard__text">
+      <span class="ccard__name">{page.name}</span>
+      <span class="ccard__price">Mulai {startingPrice(page)}</span>
+    </span>
+    <Icon name="arrow-right" size="var(--icon-lg)" />
+  </span>
+</a>
+
+<style>
+  .ccard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2-5);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .ccard :global(.ccard__photo) {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  .ccard__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .ccard__text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ccard__name {
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-item);
+  }
+
+  .ccard__price {
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (hover: hover) {
+    .ccard:hover .ccard__name {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .ccard :global(.ccard__photo) {
+      height: 260px;
+    }
+  }
+</style>

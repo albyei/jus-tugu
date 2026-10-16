@@ -1,12 +1,12 @@
 ---
-import { categories, allItems } from '../data/menu';
+import { categories } from '../data/menu';
+import { categoryLinkFor } from '../data/categoryPages';
+import CartData from './CartData.astro';
+import CategoryRibbon from './CategoryRibbon.astro';
 import CategoryTabs from './CategoryTabs.astro';
 import Icon from './Icon.astro';
 import MenuItem from './MenuItem.astro';
 import OrderSummary from './OrderSummary.astro';
-
-// Data ringan untuk keranjang di browser (nama & harga dari menu.ts)
-const cartData = Object.fromEntries(allItems.map((item) => [item.slug, { name: item.orderName, price: item.price }]));
 ---
 
 <section id="menu" class="menu" aria-labelledby="menu-title">
@@ -42,10 +42,12 @@ const cartData = Object.fromEntries(allItems.map((item) => [item.slug, { name: i
       {
         categories.map((category) => (
           <section id={category.id} class="category" aria-labelledby={`${category.id}-title`} data-category>
-            <h2 id={`${category.id}-title`} class="ribbon">
-              <span>{category.name}</span>
-              <span class="ribbon__count">{category.items.length} menu</span>
-            </h2>
+            <CategoryRibbon
+              id={`${category.id}-title`}
+              title={category.name}
+              count={category.items.length}
+              link={categoryLinkFor(category.id)}
+            />
             <ul class="category__items" style={`--rows: ${Math.ceil(category.items.length / 2)}`}>
               {category.items.map((item, index) => (
                 <MenuItem item={item} columnEnd={index === Math.ceil(category.items.length / 2) - 1} />
@@ -60,7 +62,7 @@ const cartData = Object.fromEntries(allItems.map((item) => [item.slug, { name: i
       <OrderSummary variant="panel" />
     </aside>
   </div>
-  <script type="application/json" id="cart-data" set:html={JSON.stringify(cartData)} />
+  <CartData />
 </section>
 
 <script>
@@ -186,30 +188,6 @@ const cartData = Object.fromEntries(allItems.map((item) => [item.slug, { name: i
     flex-direction: column;
     gap: var(--space-1);
     scroll-margin-top: calc(var(--chips-height) + var(--space-3));
-  }
-
-  .ribbon {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    min-height: var(--size-ribbon);
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-ink);
-    border-radius: var(--radius-md);
-    font-size: var(--text-ribbon);
-    letter-spacing: var(--tracking-ribbon);
-    line-height: var(--leading-h3);
-    color: var(--color-on-ink);
-  }
-
-  .ribbon__count {
-    flex: none;
-    font-family: var(--font-body);
-    font-size: var(--text-label-location);
-    font-weight: var(--weight-semibold);
-    letter-spacing: 0;
-    color: var(--color-on-ink-muted);
   }
 
   .category__items > :global(li:last-child) {

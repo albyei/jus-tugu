@@ -1,0 +1,88 @@
+---
+/**
+ * Tanya jawab dengan <details>/<summary> (berfungsi tanpa JavaScript).
+ * Item dengan jawaban placeholder "[...]" tidak dirender. Mengeluarkan JSON-LD FAQPage.
+ */
+import Icon from './Icon.astro';
+import { isPlaceholder } from '../data/site';
+
+interface Props {
+  items: { q: string; a: string }[];
+}
+
+const answered = Astro.props.items.filter((item) => !isPlaceholder(item.a));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: answered.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+{
+  answered.length > 0 && (
+    <div class="faq">
+      {answered.map((item) => (
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span>{item.q}</span>
+            <span class="faq__icon">
+              <Icon name="caret-down" weight="bold" size="var(--icon-lg)" />
+            </span>
+          </summary>
+          <p class="faq__a">{item.a}</p>
+        </details>
+      ))}
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    </div>
+  )
+}
+
+<style>
+  .faq {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .faq__item {
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: var(--size-button-xl);
+    padding: var(--space-4) 0;
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-item);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__icon {
+    flex: none;
+    display: inline-flex;
+    color: var(--color-text);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .faq__item[open] .faq__icon {
+    transform: rotate(180deg);
+  }
+
+  .faq__a {
+    padding: 0 34px var(--space-4-5) 0;
+    color: var(--color-text-muted);
+    line-height: var(--leading-body);
+  }
+</style>

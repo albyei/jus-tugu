@@ -1,0 +1,50 @@
+---
+/** Kotak "Menu di Artikel Ini": baris menu dengan tombol + yang terhubung ke keranjang. */
+import { allItems } from '../data/menu';
+import MenuItem from './MenuItem.astro';
+
+interface Props {
+  /** Slug MenuItem dari menu.ts. */
+  slugs: string[];
+}
+
+const items = Astro.props.slugs
+  .map((slug) => allItems.find((item) => item.slug === slug))
+  .filter((item) => item !== undefined);
+---
+
+{
+  items.length > 0 && (
+    <section class="related" aria-labelledby="related-menu-title">
+      <h2 id="related-menu-title" class="related__title">
+        Menu di Artikel Ini
+      </h2>
+      <ul class="related__list">
+        {items.map((item) => (
+          <MenuItem item={item} />
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .related {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-5) var(--space-4) var(--space-1-5);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  .related__title {
+    font-size: var(--text-card-title);
+    line-height: var(--leading-h3);
+  }
+
+  .related__list > :global(li:last-child) {
+    border-bottom: 0;
+  }
+</style>

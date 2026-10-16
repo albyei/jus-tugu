@@ -1,0 +1,108 @@
+---
+/** Tabel perbandingan di isi artikel. Di mobile/tablet bisa digeser ke samping. */
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Baris kepala; sel pertama biasanya kosong. */
+  head: string[];
+  /** Setiap baris: [label, ...nilai]. */
+  rows: string[][];
+}
+
+const { head, rows } = Astro.props;
+---
+
+<div class="compare">
+  <div class="compare__scroll" tabindex="0" role="region" aria-label="Tabel perbandingan, geser ke samping">
+    <table class="compare__table">
+      <thead>
+        <tr>
+          {head.map((cell, index) => (index === 0 ? <td /> : <th scope="col">{cell}</th>))}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map(([label, ...cells]) => (
+            <tr>
+              <th scope="row">{label}</th>
+              {cells.map((cell) => (
+                <td>{cell}</td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="compare__hint" aria-hidden="true">
+    Geser tabel ke samping <Icon name="arrow-right" size="var(--icon-xs)" />
+  </p>
+</div>
+
+<style>
+  .compare {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .compare__scroll {
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .compare__table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  thead tr {
+    background: var(--color-bg-subtle);
+  }
+
+  th,
+  td {
+    padding: var(--space-3) var(--space-3-5);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  th {
+    font-weight: var(--weight-bold);
+  }
+
+  tbody th {
+    width: 150px;
+  }
+
+  .compare__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .compare__table {
+      min-width: 0;
+    }
+
+    .compare__hint {
+      display: none;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-# TODO: [SITE_URL] — ganti domain di bawah setelah situs online
-Sitemap: https://example.com/sitemap-index.xml
+# Domain sementara — samakan dengan site.url di src/data/site.ts jika berubah
+Sitemap: https://jus-tugu.web.id/sitemap-index.xml

@@ -1,0 +1,177 @@
+---
+/**
+ * Daftar isi artikel dari H2 (+ "Sumber" bila ada).
+ * Mobile: <details> tertutup. Desktop: selalu terbuka, sticky, item aktif mengikuti gulir.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  items: { slug: string; text: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<details class="toc" data-toc>
+  <summary class="toc__head">
+    <span class="toc__title">Daftar Isi</span>
+    <span class="toc__count">· {items.length} bagian</span>
+    <span class="toc__icon"><Icon name="caret-down" weight="bold" size="var(--icon-lg)" /></span>
+  </summary>
+  <nav aria-label="Daftar isi">
+    <ol class="toc__list">
+      {
+        items.map((item, index) => (
+          <li>
+            <a href={`#${item.slug}`} class="toc__link" data-toc-link={item.slug}>
+              <span class="toc__num">{index + 1}</span>
+              <span>{item.text}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+</details>
+
+<script>
+  const toc = document.querySelector<HTMLDetailsElement>('[data-toc]');
+  const desktop = window.matchMedia('(min-width: 1024px)');
+
+  if (toc) {
+    // Desktop: selalu terbuka dan tidak bisa ditutup
+    const sync = () => {
+      if (desktop.matches) toc.open = true;
+    };
+    sync();
+    desktop.addEventListener('change', sync);
+    toc.querySelector('summary')?.addEventListener('click', (event) => {
+      if (desktop.matches) event.preventDefault();
+    });
+
+    // Item aktif mengikuti posisi gulir
+    const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+    const targets = links
+      .map((link) => document.getElementById(link.dataset.tocLink ?? ''))
+      .filter((el): el is HTMLElement => el !== null);
+
+    const setActive = (id: string) => {
+      links.forEach((link) => {
+        if (link.dataset.tocLink === id) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+    };
+
+    if ('IntersectionObserver' in window && targets.length) {
+      const observer = new IntersectionObserver(
+        () => {
+          // Judul terakhir yang sudah melewati 30% atas layar = bagian aktif
+          const line = window.innerHeight * 0.3;
+          let current = targets[0].id;
+          targets.forEach((target) => {
+            if (target.getBoundingClientRect().top <= line) current = target.id;
+          });
+          setActive(current);
+        },
+        { rootMargin: '0px 0px -70% 0px' },
+      );
+      targets.forEach((target) => observer.observe(target));
+    }
+  }
+</script>
+
+<style>
+  .toc {
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .toc__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--size-button-xl);
+    padding: 0 var(--space-4);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .toc__head::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc__title {
+    font-size: var(--text-item);
+    font-weight: var(--weight-bold);
+  }
+
+  .toc__count {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  .toc__icon {
+    display: inline-flex;
+    margin-left: auto;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .toc[open] .toc__icon {
+    transform: rotate(180deg);
+  }
+
+  .toc__list {
+    padding: var(--space-1-5) var(--space-4) var(--space-2-5);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .toc__link {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-2-5) 0 var(--space-2-5) var(--space-3);
+    border-left: var(--border-width-focus) solid var(--color-border);
+    line-height: var(--leading-body);
+    text-decoration: none;
+  }
+
+  .toc__num {
+    flex: none;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .toc__link[aria-current='true'] {
+    border-left-color: var(--color-ink);
+    font-weight: var(--weight-bold);
+  }
+
+  .toc__link[aria-current='true'] .toc__num {
+    color: var(--color-text);
+  }
+
+  @media (hover: hover) {
+    .toc__link:hover span:last-child {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .toc {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+      max-height: calc(100vh - var(--header-height) - var(--space-12));
+      overflow-y: auto;
+    }
+
+    .toc__head {
+      cursor: default;
+    }
+
+    .toc__icon {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,8 @@
+---
+/** Data ringan untuk keranjang di browser (nama & harga dari menu.ts), dibaca scripts/cart.ts. */
+import { allItems } from '../data/menu';
+
+const cartData = Object.fromEntries(allItems.map((item) => [item.slug, { name: item.orderName, price: item.price }]));
+---
+
+<script type="application/json" id="cart-data" set:html={JSON.stringify(cartData)} />

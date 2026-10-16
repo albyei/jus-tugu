@@ -1,0 +1,454 @@
+---
+/** Detail artikel (/artikel/[slug]) dari koleksi src/content/artikel. Draft tidak dibuat. */
+import type { GetStaticPaths } from 'astro';
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import RelatedMenu from '../../components/RelatedMenu.astro';
+import OrderCta from '../../components/OrderCta.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import CartData from '../../components/CartData.astro';
+import OrderBar from '../../components/OrderBar.astro';
+import OrderSheet from '../../components/OrderSheet.astro';
+import QtyStepperTemplate from '../../components/QtyStepperTemplate.astro';
+import { getPublishedArticles, readingMinutes, type Article } from '../../lib/articles';
+import { formatTanggal } from '../../lib/format';
+import { site, isPlaceholder } from '../../data/site';
+
+export const getStaticPaths = (async () => {
+  const articles = await getPublishedArticles();
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article, others: articles.filter((other) => other.id !== article.id).slice(0, 3) },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  article: Article;
+  others: Article[];
+}
+
+const { article, others } = Astro.props;
+const { data } = article;
+const { Content, headings } = await render(article);
+
+const minutes = readingMinutes(article.body);
+const hasAuthor = !isPlaceholder(data.author);
+const sources = data.sources.filter((source) => !isPlaceholder(source.label));
+const tocItems = [
+  ...headings.filter((heading) => heading.depth === 2).map(({ slug, text }) => ({ slug, text })),
+  ...(sources.length ? [{ slug: 'sumber', text: 'Sumber' }] : []),
+];
+
+const base = Astro.site ?? site.url;
+const pageUrl = new URL(Astro.url.pathname, base).href;
+
+// Gambar OG 1200×630 dari cover
+const ogImage = data.cover
+  ? await getImage({ src: data.cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' })
+  : undefined;
+const ogImageUrl = ogImage ? new URL(ogImage.src, base).href : new URL('/og-image.jpg', base).href;
+
+const publisher = { '@type': 'Organization', name: site.name, url: new URL('/', base).href };
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: data.title,
+  description: data.description,
+  datePublished: data.date.toISOString(),
+  image: ogImageUrl,
+  inLanguage: 'id',
+  mainEntityOfPage: pageUrl,
+  author: hasAuthor ? { '@type': 'Person', name: data.author } : publisher,
+  publisher,
+};
+---
+
+<BaseLayout
+  title={`${data.title} | ${site.name}`}
+  description={data.description}
+  type="article"
+  image={ogImage ? { src: ogImage.src, width: 1200, height: 630, alt: data.coverAlt ?? data.title } : undefined}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleLd)} />
+  <Header current="artikel" />
+  <main class="page">
+    <article>
+      <header class="head container">
+        <div class="narrow">
+          <Breadcrumb
+            items={[{ label: 'Beranda', href: '/' }, { label: 'Artikel', href: '/artikel' }, { label: data.shortTitle ?? data.title }]}
+          />
+          <div class="head__block">
+            <p class="head__category">{data.category}</p>
+            <h1 class="head__title">{data.title}</h1>
+            <p class="head__meta">
+              {hasAuthor && <span>Oleh {data.author}, {site.name} · </span>}
+              <time datetime={data.date.toISOString().slice(0, 10)}>{formatTanggal(data.date)}</time> · {minutes} menit baca
+            </p>
+          </div>
+        </div>
+      </header>
+
+      {
+        data.cover && (
+          <figure class="cover">
+            <Image
+              src={data.cover}
+              alt={data.coverAlt ?? ''}
+              widths={[390, 780, 1000, 1500, 2000]}
+              sizes="(min-width: 1024px) 1000px, 100vw"
+              loading="eager"
+              fetchpriority="high"
+              class="cover__img"
+            />
+            {data.coverCaption && <figcaption class="cover__caption">{data.coverCaption}</figcaption>}
+          </figure>
+        )
+      }
+
+      <div class="body container">
+        <div class="body__inner narrow">
+          {
+            tocItems.length > 1 && (
+              <aside class="body__toc">
+                <TableOfContents items={tocItems} />
+              </aside>
+            )
+          }
+          <div class="body__main">
+            <div class="prose">
+              <Content />
+            </div>
+            <RelatedMenu slugs={data.relatedMenu} />
+            <OrderCta />
+            {
+              sources.length > 0 && (
+                <section class="sources" aria-labelledby="sumber">
+                  <h2 id="sumber" class="sources__title">
+                    Sumber
+                  </h2>
+                  <ol class="sources__list">
+                    {sources.map((source, index) => (
+                      <li>
+                        {index + 1}.{' '}
+                        {source.url ? (
+                          <a href={source.url} target="_blank" rel="noopener">
+                            {source.label}
+                          </a>
+                        ) : (
+                          source.label
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              )
+            }
+            <ShareButtons title={data.title} url={pageUrl} />
+          </div>
+        </div>
+      </div>
+    </article>
+
+    {
+      others.length > 0 && (
+        <section class="others" aria-labelledby="others-title">
+          <div class="others__inner container">
+            <h2 id="others-title" class="others__title">
+              Artikel Lainnya
+            </h2>
+            <ul class="others__list others__list--mobile">
+              {others.map((other) => (
+                <li>
+                  <ArticleCard article={other} variant="horizontal" />
+                </li>
+              ))}
+            </ul>
+            <ul class="others__list others__list--desktop">
+              {others.map((other) => (
+                <li>
+                  <ArticleCard article={other} variant="vertical" />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+  </main>
+  <Footer plain />
+  <OrderBar desktop />
+  <OrderSheet />
+  <QtyStepperTemplate />
+  <CartData />
+</BaseLayout>
+
+<script>
+  import '../../scripts/cart';
+</script>
+
+<style>
+  .page {
+    background: var(--color-bg);
+  }
+
+  /* Blok tengah selebar 1000px di desktop */
+  .narrow {
+    width: 100%;
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+
+  /* ---- Kepala ---- */
+  .head {
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-6);
+  }
+
+  .head__block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .head__category {
+    font-size: var(--text-badge);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.3px;
+    color: var(--color-accent);
+  }
+
+  .head__title {
+    font-size: var(--text-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .head__meta {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  /* ---- Foto utama: full-bleed di mobile ---- */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .cover :global(.cover__img) {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+  }
+
+  .cover__caption {
+    padding: 0 var(--page-gutter);
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  /* ---- Badan ---- */
+  .body {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-10);
+  }
+
+  .body__inner,
+  .body__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .body__main {
+    min-width: 0;
+    max-width: 680px;
+  }
+
+  /* ---- Tipografi isi artikel (MDX) ---- */
+  .prose {
+    font-size: var(--text-article);
+    line-height: var(--leading-article);
+  }
+
+  .prose > :global(* + *) {
+    margin-top: var(--space-4);
+  }
+
+  .prose > :global(h2) {
+    margin-top: var(--space-10);
+    font-size: var(--text-article-h2);
+    line-height: 1.15;
+    letter-spacing: -0.4px;
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .prose > :global(h3) {
+    margin-top: var(--space-6);
+    font-size: var(--text-card-title);
+    line-height: var(--leading-h3);
+  }
+
+  .prose > :global(h3 + ul) {
+    margin-top: var(--space-3);
+  }
+
+  .prose :global(ul) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .prose :global(ul > li) {
+    position: relative;
+    padding-left: calc(7px + var(--space-3));
+  }
+
+  /* Titik bulat 7px, sejajar baris pertama */
+  .prose :global(ul > li)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc((1lh - 7px) / 2);
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-ink);
+  }
+
+  .prose :global(a) {
+    text-underline-offset: 3px;
+  }
+
+  /* ---- Sumber ---- */
+  .sources {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-5);
+    border-top: var(--border-width) solid var(--color-border);
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .sources__title {
+    font-family: var(--font-body);
+    font-size: var(--text-caption);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0;
+  }
+
+  .sources__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  .sources__list a {
+    text-underline-offset: 3px;
+  }
+
+  /* ---- Artikel Lainnya ---- */
+  .others {
+    background: var(--color-bg-subtle);
+  }
+
+  .others__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+
+  .others__title {
+    font-size: var(--text-article-h2);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-h2);
+  }
+
+  .others__list--desktop {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .head {
+      padding-top: var(--space-4);
+      padding-bottom: var(--space-8);
+    }
+
+    .head__block {
+      gap: var(--space-4);
+      padding-top: var(--space-4);
+    }
+
+    .head__meta {
+      font-size: var(--text-label-location);
+    }
+
+    .cover {
+      width: calc(100% - 2 * var(--page-gutter));
+      max-width: 1000px;
+      margin-inline: auto;
+      padding-bottom: var(--space-12);
+      gap: var(--space-2-5);
+    }
+
+    .cover :global(.cover__img) {
+      height: 540px;
+      border-radius: var(--radius-xl);
+    }
+
+    .cover__caption {
+      padding: 0;
+    }
+
+    .body {
+      padding-top: 0;
+      padding-bottom: var(--space-20);
+    }
+
+    .body__inner {
+      flex-direction: row;
+      align-items: stretch;
+      gap: 60px;
+    }
+
+    .body__toc {
+      flex: none;
+      width: 260px;
+    }
+
+    .body__main {
+      flex: 0 1 680px;
+    }
+
+    .others__inner {
+      gap: var(--space-8);
+      padding-top: var(--space-20);
+      padding-bottom: var(--space-20);
+    }
+
+    .others__title {
+      font-size: var(--text-h2);
+    }
+
+    .others__list--mobile {
+      display: none;
+    }
+
+    .others__list--desktop {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-8);
+    }
+  }
+</style>

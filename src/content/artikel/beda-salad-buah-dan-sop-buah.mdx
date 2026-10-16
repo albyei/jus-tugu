@@ -1,0 +1,68 @@
+---
+title: 'Beda Salad Buah dan Sop Buah, Mana yang Cocok untuk Anda?'
+shortTitle: 'Beda Salad Buah dan Sop Buah'
+description: 'Sama-sama potongan buah, beda saus dan rasanya.'
+category: 'Menu'
+date: 2026-10-12
+author: '[Nama Pemilik]'
+cover: '../../assets/images/salad-buah.png'
+coverAlt: 'Salad buah Jus Tugu dengan saus salad dan parutan keju dalam gelas plastik'
+coverCaption: 'Salad buah Jus Tugu dengan keju parut di atasnya.'
+relatedMenu: ['salad-buah', 'sop-buah-kuah-alpukat']
+sources:
+  - label: '[Nama sumber 1], [judul halaman], [tahun]'
+  - label: '[Nama sumber 2], [judul halaman], [tahun]'
+draft: false
+---
+
+import ComparisonTable from '../../components/ComparisonTable.astro';
+import TipBox from '../../components/TipBox.astro';
+import Figure from '../../components/Figure.astro';
+import { priceLabel } from '../../data/categoryPages';
+import sopBuahKuahAlpukat from '../../assets/images/sop-buah-kuah-alpukat.png';
+
+Salad buah dan sop buah sama-sama berbahan potongan buah segar, tetapi cara penyajian dan rasanya berbeda. Berikut perbedaannya, supaya Anda tahu mana yang lebih cocok.
+
+## Salad Buah
+
+Potongan buah disajikan dengan saus kental, biasanya campuran mayones, susu, dan keju parut di atasnya. Teksturnya creamy dan rasanya manis gurih.
+
+## Sop Buah
+
+Potongan buah disajikan dalam kuah dingin. Di Jus Tugu, kuahnya bisa dipilih: alpukat, mangga, sirsak, atau melon. Lebih segar dan cocok diminum saat cuaca panas.
+
+## Perbandingan singkat
+
+<ComparisonTable
+  head={['', 'Salad Buah', 'Sop Buah']}
+  rows={[
+    ['Penyajian', 'Saus kental, keju parut di atas', 'Kuah dingin, pilih rasa kuah'],
+    ['Tekstur', 'Creamy', 'Segar, berkuah'],
+    ['Rasa', 'Manis gurih', 'Manis segar'],
+    ['Harga di Jus Tugu', priceLabel('salad-buah'), priceLabel('sop-buah')],
+  ]}
+/>
+
+## Mana yang cocok untuk Anda?
+
+Keduanya sama segarnya. Pilihannya tergantung selera dan suasana.
+
+### Pilih salad buah jika Anda
+
+- Suka rasa manis gurih dan tekstur creamy
+- Ingin camilan yang lebih mengenyangkan
+- Menyukai keju
+
+### Pilih sop buah jika Anda
+
+- Mencari minuman yang segar saat cuaca panas
+- Ingin memilih rasa kuah sendiri
+- Lebih suka rasa manis yang ringan
+
+<TipBox>[Tips singkat dari pemilik]</TipBox>
+
+<Figure
+  src={sopBuahKuahAlpukat}
+  alt="Sop buah kuah alpukat Jus Tugu dalam gelas plastik"
+  caption="Sop buah kuah alpukat dengan potongan buah naga, pepaya, dan melon."
+/>

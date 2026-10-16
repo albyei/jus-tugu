@@ -1,11 +1,20 @@
 ---
-/** Bar pesanan yang menempel di bawah layar (mobile & tablet). */
+/**
+ * Bar pesanan yang menempel di bawah layar (mobile & tablet).
+ * desktop: tetap tampil di desktop untuk halaman tanpa panel pesanan (artikel).
+ */
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import { greetingLink } from '../scripts/whatsapp';
+
+interface Props {
+  desktop?: boolean;
+}
+
+const { desktop = false } = Astro.props;
 ---
 
-<div class="bar" data-order-bar>
+<div class:list={['bar', { 'bar--desktop': desktop }]} data-order-bar>
   <div class="bar__state" data-bar-empty>
     <Button href={greetingLink} external variant="outline" block icon="whatsapp-logo">Chat WhatsApp</Button>
   </div>
@@ -76,8 +85,27 @@ import { greetingLink } from '../scripts/whatsapp';
   }
 
   @media (min-width: 1024px) {
-    .bar {
+    .bar:not(.bar--desktop) {
       display: none;
+    }
+
+    /* Isi bar dibatasi lebar konten di tengah */
+    .bar--desktop {
+      padding-inline: var(--page-gutter);
+    }
+
+    .bar--desktop .bar__state {
+      max-width: var(--content-width);
+      margin-inline: auto;
+    }
+
+    .bar--desktop [data-bar-empty] :global(.btn) {
+      width: auto;
+      margin-left: auto;
+    }
+
+    :global(body:has(.bar--desktop)) {
+      padding-bottom: calc(var(--order-bar-height) + env(safe-area-inset-bottom));
     }
   }
 </style>

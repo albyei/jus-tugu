@@ -53,6 +53,62 @@ menandai data palsu.
   Urutan kartu diatur di `bestSellerOrder`. `badge: 'Terlaris'` menampilkan label kuning.
 - Jumlah menu ("47 pilihan menu"), harga termurah, dan rentang harga dihitung otomatis.
 
+### `src/data/categoryPages.ts` — halaman kategori (`/menu/...`)
+
+Empat halaman: Sop Buah, Salad Buah, Jus Buah (Jus Original + Jus Mix), dan Jus Yakult. Daftar menu,
+jumlah pilihan, dan harga "Mulai Rp…" diambil otomatis dari `menu.ts`. Minuman Lain tidak punya halaman.
+Kalimat pengantar Salad Buah, Jus Buah, dan Jus Yakult masih draf (`// TODO: cek pemilik`).
+
+| Placeholder | Isi dengan |
+| --- | --- |
+| `[Jawaban]` (FAQ) | Jawaban untuk "Apakah bisa pesan antar?", "Bisa pesan dalam jumlah banyak?", dan "Bisa minta kurangi gula atau tanpa es?". Jawaban jam buka diisi otomatis dari `openingHoursSummary`. |
+| `[Daftar buah yang dipakai dan cara penyajian]` | Paragraf "Isi … Kami" per kategori (`detailText`) |
+| Foto dekat "Isi … Kami" | Sementara potongan foto header (`// TODO: ganti dengan foto dekat asli`) |
+
+### Artikel — `src/content/artikel/`
+
+| Placeholder | Isi dengan |
+| --- | --- |
+| `[Nama Pemilik]` | Nama penulis di frontmatter `author` |
+| `[Tips singkat dari pemilik]` | Isi `<TipBox>` di artikel "Beda Salad Buah dan Sop Buah" |
+| `[Nama sumber 1], [judul halaman], [tahun]` | Daftar `sources` (tambahkan `url` bila ada) |
+| `[Isi artikel]` | Isi artikel draf (Jus Tape Ketan Hitam, Jus Yakult, Jus Alpukat) |
+
+Selama masih placeholder, bagian itu disembunyikan otomatis: item FAQ (dan seluruh section bila semua kosong),
+paragraf "Isi … Kami", kotak Tips, "Oleh …" di meta artikel (JSON-LD memakai Organization "Jus Tugu"),
+dan section Sumber beserta entrinya di Daftar Isi.
+
+**Menulis artikel baru:** buat file `nama-artikel.mdx` di `src/content/artikel/` (nama file = alamat
+`/artikel/nama-artikel`). Contoh frontmatter:
+
+```mdx
+---
+title: 'Judul Artikel'
+shortTitle: 'Judul Pendek'          # opsional, untuk breadcrumb
+description: 'Ringkasan 1–2 kalimat untuk kartu dan Google.'
+category: 'Menu'                    # 'Menu' atau 'Tips Buah'
+date: 2026-11-01
+author: 'Nama Penulis'
+cover: '../../assets/images/jus-alpukat.png'   # opsional
+coverAlt: 'Deskripsi foto'
+coverCaption: 'Keterangan di bawah foto'
+relatedMenu: ['jus-alpukat']        # slug menu dari menu.ts, tampil dengan tombol +
+sources:
+  - label: 'Nama sumber, judul halaman, tahun'
+    url: 'https://...'              # opsional
+draft: true                         # ubah ke false untuk menerbitkan
+---
+
+Paragraf pembuka.
+
+## Judul bagian
+```
+
+- Setiap `##` otomatis masuk Daftar Isi. Waktu baca dihitung otomatis (200 kata per menit).
+- Komponen yang bisa dipakai (import di atas isi): `TipBox`, `ComparisonTable`, `Figure` — lihat contoh di
+  `beda-salad-buah-dan-sop-buah.mdx`.
+- Artikel dengan `draft: true` tidak tampil di daftar, tidak dibuat halamannya, dan tidak masuk sitemap.
+
 ### Testimoni
 
 Edit `src/data/testimonials.ts`.
@@ -100,12 +156,14 @@ Setelah online:
 
 ```
 src/
-  data/          site.ts, menu.ts, testimonials.ts (sumber data)
+  data/          site.ts, menu.ts, categoryPages.ts, testimonials.ts (sumber data)
+  content/       artikel/*.mdx (artikel), content.config.ts di src/ (skema)
   styles/        tokens.css (design tokens dari Pen.dev), global.css
-  layouts/       BaseLayout.astro (head, SEO, JSON-LD, font)
+  layouts/       BaseLayout.astro (head, SEO, JSON-LD, font Outfit)
+  lib/           format.ts (Rupiah, tanggal), articles.ts, icons.ts
   components/    satu komponen per section / elemen UI
   scripts/       cart.ts, whatsapp.ts, feedback.ts
-  pages/         index.astro
+  pages/         index.astro, menu/[slug].astro, artikel/index.astro, artikel/[slug].astro
 google-apps-script/Code.gs
 scripts/generate-assets.mjs
 ```

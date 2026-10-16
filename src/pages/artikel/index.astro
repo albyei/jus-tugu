@@ -1,0 +1,388 @@
+---
+/** Daftar artikel (/artikel) dengan filter kategori di sisi klien (?kategori=menu|tips-buah). */
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import Icon from '../../components/Icon.astro';
+import CartData from '../../components/CartData.astro';
+import OrderBar from '../../components/OrderBar.astro';
+import OrderSheet from '../../components/OrderSheet.astro';
+import QtyStepperTemplate from '../../components/QtyStepperTemplate.astro';
+import { articleUrl, categorySlug, getPublishedArticles, readingMinutes } from '../../lib/articles';
+import { formatTanggal } from '../../lib/format';
+
+const title = 'Artikel Jus Tugu – Cerita Seputar Buah dan Menu';
+const intro = 'Cerita seputar buah, menu, dan cara kami menyiapkannya.';
+
+const articles = await getPublishedArticles();
+const [latest] = articles;
+const filters = [
+  { label: 'Semua', value: '' },
+  { label: 'Menu', value: categorySlug('Menu') },
+  { label: 'Tips Buah', value: categorySlug('Tips Buah') },
+];
+---
+
+<BaseLayout title={title} description={intro}>
+  <Header current="artikel" />
+  <main class="page">
+    <div class="head container">
+      <Breadcrumb items={[{ label: 'Beranda', href: '/' }, { label: 'Artikel' }]} />
+      <div class="head__row">
+        <div class="head__text">
+          <h1 class="head__title">Artikel Jus Tugu</h1>
+          <p class="head__intro">{intro}</p>
+        </div>
+        <div class="filters" role="group" aria-label="Filter kategori artikel">
+          {
+            filters.map((filter) => (
+              <button
+                type="button"
+                class="chip"
+                aria-pressed={filter.value === '' ? 'true' : 'false'}
+                data-filter={filter.value}
+              >
+                {filter.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="list container">
+      {
+        latest && (
+          <a href={articleUrl(latest)} class="feature" data-feature data-category={categorySlug(latest.data.category)}>
+            {latest.data.cover ? (
+              <Image
+                src={latest.data.cover}
+                alt={latest.data.coverAlt ?? ''}
+                widths={[680, 1020, 1360]}
+                sizes="680px"
+                loading="lazy"
+                class="feature__photo"
+              />
+            ) : (
+              <span class="feature__photo feature__photo--empty" aria-hidden="true">
+                <Icon name="image" size="48px" />
+              </span>
+            )}
+            <div class="feature__text">
+              <span class="feature__label">{latest.data.category} · Terbaru</span>
+              <h2 class="feature__title">{latest.data.title}</h2>
+              <span class="feature__summary">{latest.data.description}</span>
+              <span class="feature__meta">
+                {formatTanggal(latest.data.date)} · {readingMinutes(latest.body)} menit baca
+              </span>
+            </div>
+          </a>
+        )
+      }
+
+      <!-- Mobile: daftar horizontal (semua artikel) -->
+      <ul class="list__mobile">
+        {
+          articles.map((article) => (
+            <li data-article data-category={categorySlug(article.data.category)}>
+              <ArticleCard article={article} variant="horizontal" headingLevel="h2" />
+            </li>
+          ))
+        }
+      </ul>
+
+      <!-- Desktop: grid 3 kolom (tanpa artikel sorotan, kecuali saat filter aktif) -->
+      <ul class="list__grid">
+        {
+          articles.map((article, index) => (
+            <li
+              data-article
+              data-category={categorySlug(article.data.category)}
+              data-featured={index === 0 ? '' : undefined}
+            >
+              <ArticleCard article={article} variant="vertical" headingLevel="h2" />
+            </li>
+          ))
+        }
+      </ul>
+
+      <EmptyState hidden={articles.length > 0} />
+    </div>
+  </main>
+  <Footer />
+  <OrderBar />
+  <OrderSheet />
+  <QtyStepperTemplate />
+  <CartData />
+</BaseLayout>
+
+<script>
+  import '../../scripts/cart';
+
+  const page = document.querySelector<HTMLElement>('.page');
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-article]'));
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+  const valid = new Set(chips.map((chip) => chip.dataset.filter ?? ''));
+
+  const apply = (value: string, updateUrl: boolean) => {
+    const filter = valid.has(value) ? value : '';
+    chips.forEach((chip) => chip.setAttribute('aria-pressed', String(chip.dataset.filter === filter)));
+    page?.toggleAttribute('data-filtered', filter !== '');
+    let shown = 0;
+    items.forEach((item) => {
+      const match = !filter || item.dataset.category === filter;
+      item.hidden = !match;
+      if (match && item.closest('.list__mobile')) shown += 1;
+    });
+    if (empty) empty.hidden = shown > 0;
+    if (updateUrl) {
+      const url = new URL(location.href);
+      if (filter) url.searchParams.set('kategori', filter);
+      else url.searchParams.delete('kategori');
+      history.replaceState(null, '', url);
+    }
+  };
+
+  chips.forEach((chip) => chip.addEventListener('click', () => apply(chip.dataset.filter ?? '', true)));
+  document.querySelector('[data-filter-reset]')?.addEventListener('click', () => {
+    apply('', true);
+    chips[0]?.focus();
+  });
+
+  const initial = new URLSearchParams(location.search).get('kategori') ?? '';
+  if (initial) apply(initial, false);
+</script>
+
+<style>
+  .page {
+    background: var(--color-bg);
+  }
+
+  /* ---- Kepala ---- */
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-1);
+  }
+
+  .head__row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .head__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-bottom: var(--space-2);
+  }
+
+  .head__title {
+    font-size: var(--text-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .head__intro {
+    font-size: var(--text-body-lg-fixed);
+  }
+
+  /* Filter chip: gaya chip kategori yang sudah ada */
+  .filters {
+    display: flex;
+    gap: var(--space-2);
+    margin-inline: calc(var(--page-gutter) * -1);
+    padding: var(--space-3) var(--page-gutter);
+    border-bottom: var(--border-width) solid var(--color-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chip {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--size-chip);
+    padding: 0 var(--space-4-5);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  /* Chip setinggi 44px; area sentuh diperluas menjadi 48px */
+  .chip::after {
+    content: '';
+    position: absolute;
+    inset: -2px 0;
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  @media (hover: hover) {
+    .chip:not([aria-pressed='true']):hover {
+      border-color: var(--color-ink);
+    }
+  }
+
+  /* ---- Daftar ---- */
+  .list {
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-10);
+  }
+
+  .feature,
+  .list__grid {
+    display: none;
+  }
+
+  .list :global([data-filter-empty]) {
+    margin-top: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .head {
+      gap: var(--space-4);
+      padding-top: var(--space-4);
+    }
+
+    .head__row {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-8);
+      padding-bottom: var(--space-6);
+      border-bottom: var(--border-width) solid var(--color-border);
+    }
+
+    .head__text {
+      width: 640px;
+      padding-bottom: 0;
+    }
+
+    .head__intro {
+      font-size: 1.25rem;
+    }
+
+    .filters {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      overflow: visible;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-14);
+      padding-top: var(--space-10);
+      padding-bottom: var(--space-20);
+    }
+
+    .list__mobile {
+      display: none;
+    }
+
+    .list__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-8);
+    }
+
+    .list__grid:not(:has(> li:not([hidden]))) {
+      display: none;
+    }
+
+    /* Artikel terbaru tampil sebagai sorotan; saat filter aktif semua hasil masuk grid */
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      color: var(--color-text);
+      text-decoration: none;
+    }
+
+    .list__grid > [data-featured] {
+      display: none;
+    }
+
+    .page[data-filtered] .feature {
+      display: none;
+    }
+
+    .page[data-filtered] .list__grid > [data-featured]:not([hidden]) {
+      display: block;
+    }
+
+    .list :global([data-filter-empty]) {
+      margin-top: 0;
+    }
+  }
+
+  .feature :global(.feature__photo) {
+    flex: none;
+    width: 680px;
+    max-width: 57%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+  }
+
+  .feature__photo--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-border);
+    color: var(--color-icon-muted);
+  }
+
+  .feature__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .feature__label {
+    font-size: var(--text-badge);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.3px;
+    color: var(--color-accent);
+  }
+
+  .feature__title {
+    font-size: var(--text-h2);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-h2);
+  }
+
+  .feature__summary {
+    font-size: var(--text-article);
+    color: var(--color-text-muted);
+  }
+
+  .feature__meta {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+  }
+
+  @media (hover: hover) {
+    .feature:hover .feature__title {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+</style>

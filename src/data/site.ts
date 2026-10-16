@@ -17,37 +17,33 @@ const OPENING_HOURS_PLACEHOLDER = '[OPENING_HOURS]';
 
 export const site = {
   name: 'Jus Tugu',
-  // TODO: [SITE_URL] — domain asli, tanpa garis miring di akhir (contoh: https://justugu.com)
-  url: 'https://example.com',
-  // TODO: [WA_NUMBER] — format 62, tanpa + atau 0 di depan (contoh: 6281234567890)
-  waNumber: '[WA_NUMBER]',
+  // Domain sementara (alternatif: https://jus-tugu.my.id). Ganti juga di public/robots.txt.
+  url: 'https://jus-tugu.web.id',
+  // Format 62, tanpa + atau 0 di depan
+  waNumber: '6281385040111',
   address: {
-    // TODO: [FULL_ADDRESS] — nama jalan / dusun / RT RW
-    street: '[FULL_ADDRESS]',
+    street: 'Jl. Raya Senggreng, RT.01/RW.01, Dsn. Krajan',
     locality: 'Senggreng',
     district: 'Sumberpucung',
     regency: 'Kab. Malang',
     region: 'Jawa Timur',
-    // TODO: [POSTAL_CODE]
-    postalCode: '[POSTAL_CODE]',
+    postalCode: '65165',
     country: 'ID',
   },
-  // TODO: [LANDMARK] — patokan yang mudah dikenali (contoh: "Depan balai desa")
-  landmark: '[LANDMARK]',
-  // TODO: [COORDINATES] — salin dari Google Maps (klik kanan pada titik lokasi)
-  geo: { lat: null as number | null, lng: null as number | null },
-  // TODO: [OPENING_HOURS] — isi jam buka per hari, format "HH:MM"; null = tutup
+  landmark: 'Pinggir Jl. Raya Senggreng, Sumberpucung',
+  geo: { lat: -8.156053 as number | null, lng: 112.517065 as number | null },
+  // Format "HH:MM"; null = tutup
   openingHours: [
-    { label: 'Senin', dayOfWeek: 'Monday', opens: null, closes: null },
-    { label: 'Selasa', dayOfWeek: 'Tuesday', opens: null, closes: null },
-    { label: 'Rabu', dayOfWeek: 'Wednesday', opens: null, closes: null },
-    { label: 'Kamis', dayOfWeek: 'Thursday', opens: null, closes: null },
-    { label: 'Jumat', dayOfWeek: 'Friday', opens: null, closes: null },
-    { label: 'Sabtu', dayOfWeek: 'Saturday', opens: null, closes: null },
-    { label: 'Minggu', dayOfWeek: 'Sunday', opens: null, closes: null },
+    { label: 'Senin', dayOfWeek: 'Monday', opens: '12:00', closes: '21:00' },
+    { label: 'Selasa', dayOfWeek: 'Tuesday', opens: '12:00', closes: '21:00' },
+    { label: 'Rabu', dayOfWeek: 'Wednesday', opens: '12:00', closes: '21:00' },
+    { label: 'Kamis', dayOfWeek: 'Thursday', opens: '12:00', closes: '21:00' },
+    { label: 'Jumat', dayOfWeek: 'Friday', opens: '12:00', closes: '21:00' },
+    { label: 'Sabtu', dayOfWeek: 'Saturday', opens: '12:00', closes: '21:00' },
+    { label: 'Minggu', dayOfWeek: 'Sunday', opens: '12:00', closes: '21:00' },
   ] as OpeningHours[],
-  // TODO: [OPENING_HOURS] — ringkasan untuk hero, contoh "setiap hari 09.00–21.00"
-  openingHoursSummary: OPENING_HOURS_PLACEHOLDER,
+  // Ringkasan untuk hero
+  openingHoursSummary: 'setiap hari 12.00–21.00',
   access: 'Mudah dijangkau dari Kepanjen dan Kromengan.',
   social: {
     // TODO: [INSTAGRAM_URL]
@@ -58,7 +54,7 @@ export const site = {
     gofood: '[GOFOOD_URL]',
   },
   // TODO: [APPS_SCRIPT_URL] — URL Web App Google Apps Script (lihat README)
-  appsScriptUrl: '[APPS_SCRIPT_URL]',
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbxxNFs_J5M2hKAQi0g5_2eIs666MzvRFH_YEEMWtPjHLqOpe2v7xMONHqTt7Y7UxMtAIA/exec',
   themeColor: '#FFDD00',
   servesCuisine: ['Jus buah', 'Sop buah', 'Salad buah', 'Minuman'],
 } as const;
@@ -92,5 +88,6 @@ const mapsQuery =
 
 /** Membuka Google Maps dengan rute ke lokasi. */
 export const mapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapsQuery)}`;
-/** URL iframe peta (tanpa API key). */
-export const mapsEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(mapsQuery)}&z=16&output=embed`;
+/** URL iframe peta (tanpa API key), dari menu "Sematkan peta" Google Maps. */
+export const mapsEmbedUrl =
+  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1000.1635646460267!2d112.51706537897988!3d-8.156053076889966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7898b6b0b6f40d%3A0x6e4edc7e90545613!2sRGV8%2BGXG%2C%20Krajan%20Senggreng%2C%20Senggreng%2C%20Kec.%20Sumberpucung%2C%20Kabupaten%20Malang%2C%20Jawa%20Timur%2065165!5e0!3m2!1sid!2sid!4v1791944709356!5m2!1sid!2sid';

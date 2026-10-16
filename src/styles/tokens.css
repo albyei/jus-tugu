@@ -32,14 +32,17 @@
   --color-overlay: #22222299;
 
   /* ---- Font ---- */
-  --font-heading: 'Bricolage Grotesque', 'Arial Narrow', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Satu keluarga (Outfit) untuk judul dan isi */
+  --font-heading: 'Outfit Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Outfit Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
   --weight-extrabold: 800;
+  --weight-heading: 600; /* H1–H3, pita kategori, judul panel/sheet */
+  --weight-brand: 700; /* logo, nama usaha di footer, total harga */
 
   /* ---- Skala huruf (mobile 390px → desktop 1440px) ---- */
   --text-display: clamp(2.125rem, 1.5679rem + 2.2857vw, 3.625rem); /* 34 → 58 */
@@ -60,6 +63,9 @@
   --text-error: 0.9375rem; /* 15 */
   --text-caption: 0.875rem; /* 14 */
   --text-badge: 0.8125rem; /* 13 */
+  --text-article: 1.125rem; /* 18 — isi artikel */
+  --text-card-title: 1.375rem; /* 22 — judul kartu artikel & kotak menu */
+  --text-article-h2: 1.75rem; /* 28 — H2 isi artikel, tetap di semua layar */
 
   --leading-tight: 1.05;
   --leading-heading: 1.1;
@@ -68,9 +74,10 @@
   --leading-card-name: 1.35;
   --leading-item: 1.4;
   --leading-body: 1.5;
+  --leading-article: 1.7;
 
-  --tracking-display: -0.02em;
-  --tracking-h2: -0.015em;
+  --tracking-display: -0.025em;
+  --tracking-h2: -0.02em;
   --tracking-ribbon: 0.01em;
   --tracking-logo: -0.01em;
   --tracking-label: 0.04em;
@@ -174,7 +181,8 @@
   --testimonial-heading-width: 300px;
   --sheet-max-width: 560px;
   --search-width-lg: 400px;
-  --footer-contact-width: 380px;
+  --footer-contact-width: 280px;
+  --footer-links-width: 150px;
 
   /* ---- Gerak ---- */
   --duration-fast: 150ms;

@@ -1,0 +1,70 @@
+---
+/** Tiga langkah "Cara Pesan". */
+const steps = [
+  'Pilih menu dan tekan + Tambah',
+  'Tekan Kirim Pesanan',
+  'Pesanan dikirim ke WhatsApp kami dan segera disiapkan',
+];
+---
+
+<ol class="steps">
+  {
+    steps.map((step, index) => (
+      <li class="step">
+        <span class="step__num" aria-hidden="true">
+          {index + 1}
+        </span>
+        <span class="step__text">{step}</span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3-5);
+  }
+
+  .step__num {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-step);
+    height: var(--size-step);
+    border-radius: var(--radius-full);
+    background: var(--color-ink);
+    color: var(--color-on-ink);
+    font-family: var(--font-heading);
+    font-size: var(--text-ribbon);
+    font-weight: var(--weight-heading);
+  }
+
+  .step__text {
+    padding-top: 7px;
+    font-size: var(--text-item);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-item);
+  }
+
+  @media (min-width: 1024px) {
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-8);
+    }
+
+    .step {
+      padding-top: var(--space-6);
+      border-top: var(--border-width) solid var(--color-border);
+    }
+  }
+</style>

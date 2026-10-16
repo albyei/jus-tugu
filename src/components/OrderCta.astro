@@ -1,0 +1,39 @@
+---
+/** Ajakan pesan di akhir artikel. */
+import Button from './Button.astro';
+import { greetingLink } from '../scripts/whatsapp';
+---
+
+<section class="cta" aria-labelledby="cta-title">
+  <h2 id="cta-title" class="cta__title">Mau coba?</h2>
+  <p class="cta__text">Pesan langsung lewat WhatsApp, kami siapkan pesanan Anda.</p>
+  <div class="cta__action">
+    <Button href={greetingLink} external icon="whatsapp-logo">Chat WhatsApp</Button>
+  </div>
+</section>
+
+<style>
+  .cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    background: var(--color-bg-subtle);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  .cta__title {
+    font-size: var(--text-article-h2);
+    line-height: var(--leading-heading);
+    letter-spacing: -0.4px;
+  }
+
+  .cta__text {
+    font-size: var(--text-body-lg-fixed);
+  }
+
+  .cta__action {
+    padding-top: var(--space-1);
+  }
+</style>

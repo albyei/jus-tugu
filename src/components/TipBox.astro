@@ -1,0 +1,37 @@
+---
+/** Kotak tips di isi artikel. Tidak dirender bila isinya masih placeholder "[...]". */
+import { isPlaceholder } from '../data/site';
+
+const html = Astro.slots.has('default') ? await Astro.slots.render('default') : '';
+const text = html.replace(/<[^>]+>/g, '').trim();
+---
+
+{
+  !isPlaceholder(text) && (
+    <aside class="tip">
+      <p class="tip__label">Tips</p>
+      <div class="tip__body" set:html={html} />
+    </aside>
+  )
+}
+
+<style>
+  .tip {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1-5);
+    padding: var(--space-4-5) var(--space-5);
+    background: var(--color-bg-subtle);
+    border-left: 4px solid var(--color-rating);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .tip__label {
+    font-weight: var(--weight-bold);
+  }
+
+  .tip__body {
+    font-size: var(--text-article);
+    line-height: var(--leading-article);
+  }
+</style>

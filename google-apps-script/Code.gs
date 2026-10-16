@@ -13,6 +13,11 @@ var SHEET_NAME = 'Masukan';
 var HEADERS = ['Waktu', 'Nama', 'Rating', 'Pesan'];
 var MAX_NAME = 100;
 var MAX_MESSAGE = 1000;
+// Batas server: maksimal RATE_LIMIT masukan per jendela RATE_WINDOW_SEC (semua pengirim),
+// dan sheet berhenti menerima setelah MAX_ROWS baris.
+var RATE_LIMIT = 20;
+var RATE_WINDOW_SEC = 600;
+var MAX_ROWS = 5000;
 
 function doPost(e) {
   try {
@@ -31,15 +36,33 @@ function doPost(e) {
     var lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
-      sheet_().appendRow([new Date(), name, rating, message]);
+      if (rateLimited_()) return json_({ ok: false, error: 'Try again later' });
+      var sheet = sheet_();
+      if (sheet.getLastRow() > MAX_ROWS) return json_({ ok: false, error: 'Try again later' });
+      sheet.appendRow([new Date(), name, rating, message]);
     } finally {
       lock.releaseLock();
     }
 
     return json_({ ok: true });
   } catch (err) {
-    return json_({ ok: false, error: String(err) });
+    console.error(err);
+    return json_({ ok: false, error: 'Failed to save' });
   }
+}
+
+/**
+ * Hitung masukan per jendela waktu tetap. Panggil di dalam lock agar
+ * baca-tambah-tulis hitungan bersifat atomik.
+ */
+function rateLimited_() {
+  var cache = CacheService.getScriptCache();
+  var key = 'rate_' + Math.floor(Date.now() / (RATE_WINDOW_SEC * 1000));
+  var count = Number(cache.get(key) || 0);
+  if (count >= RATE_LIMIT) return true;
+  // TTL sedikit lebih lama dari jendela agar kunci tidak hilang sebelum jendela berakhir.
+  cache.put(key, String(count + 1), RATE_WINDOW_SEC + 100);
+  return false;
 }
 
 /** Untuk cek cepat di browser bahwa Web App aktif. */
