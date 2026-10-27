@@ -111,7 +111,7 @@ export const categories: Category[] = [
     items: build(
       [
         { name: 'Strawberry', price: 13000 },
-        { name: 'Leci', price: 12000 },
+        { name: 'Leci', price: 13000 },
         {
           name: 'Mangga',
           price: 12000,
@@ -126,6 +126,7 @@ export const categories: Category[] = [
         { name: 'Jambu', price: 12000 },
         { name: 'Jeruk', price: 12000 },
         { name: 'Lemon', price: 12000 },
+        { name: 'Alpukat', price: 15000 },
       ],
       {
         orderName: (name) => `${name} + Yakult + Susu UHT`,
@@ -151,7 +152,7 @@ export const categories: Category[] = [
           image: { src: jusBuahNagaImg, alt: 'Jus buah naga Jus Tugu berwarna merah muda dalam gelas plastik' },
         },
         { name: 'Strawberry', price: 9000 },
-        { name: 'Leci', price: 8000 },
+        { name: 'Leci', price: 10000 },
         { name: 'Mangga', price: 8000 },
         { name: 'Tomat', price: 7000 },
         { name: 'Wortel', price: 7000 },
@@ -179,8 +180,8 @@ export const categories: Category[] = [
       [
         { name: 'Sirsak + Strawberry', price: 12000 },
         { name: 'Wortel + Apel + Tomat', price: 10000 },
-        { name: 'Leci + Tomat', price: 10000 },
-        { name: 'Jambu + Buah Naga', price: 10000 },
+        { name: 'Leci + Tomat', price: 12000 },
+        { name: 'Jambu + Buah Naga', price: 12000 },
         { name: 'Nanas + Wortel', price: 9000 },
         { name: 'Wortel + Apel', price: 9000 },
         { name: 'Wortel + Tomat', price: 9000 },

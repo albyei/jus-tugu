@@ -18,7 +18,7 @@ const OPENING_HOURS_PLACEHOLDER = '[OPENING_HOURS]';
 export const site = {
   name: 'Jus Tugu',
   // Domain sementara (alternatif: https://jus-tugu.my.id). Ganti juga di public/robots.txt.
-  url: 'https://jus-tugu.web.id',
+  url: 'https://justugu.web.id',
   // Format 62, tanpa + atau 0 di depan
   waNumber: '6281385040111',
   address: {
@@ -44,7 +44,7 @@ export const site = {
   ] as OpeningHours[],
   // Ringkasan untuk hero
   openingHoursSummary: 'setiap hari 12.00–21.00',
-  access: 'Mudah dijangkau dari Kepanjen dan Kromengan.',
+  access: 'Mudah dijangkau dari Kepanjen dan Sumberpucung.',
   social: {
     // TODO: [INSTAGRAM_URL]
     instagram: '[INSTAGRAM_URL]',
